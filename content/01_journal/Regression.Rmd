@@ -1,0 +1,77 @@
+---
+title: "Regression"
+output: html_document
+date: "2023-06-03"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Libraries
+```{r}
+library(recipes)
+library(parsnip)
+library(yardstick)
+library(tidymodels)
+```
+
+
+# Data set
+```{r}
+bike_orderlines_tbl <- readRDS("./../../assets/DataSets/bike_orderlines.rds")
+```
+
+# Split the data into training and testing sets
+
+```{r}
+set.seed(123)  # For reproducibility
+bikes_split <- initial_split(bike_orderlines_tbl, prop = 0.8)
+bikes_train <- training(bikes_split)
+bikes_test <- testing(bikes_split)
+```
+
+# Create a model
+```{r}
+set.seed(1234)
+model_07_boost_tree_xgboost <- boost_tree(
+  mode = "regression",
+  mtry = 30,
+  learn_rate = 0.25,
+  tree_depth = 7
+) %>%
+  set_engine("xgboost")
+```
+
+# Create a recipe
+```{r}
+bikes_recipe <- recipe(price ~ ., data = bikes_train) %>%
+  step_rm(order_id, order_line, order_date, url, location, lat, lng) %>%
+  step_dummy(all_nominal(), -all_outcomes()) %>%
+  prep()
+```
+
+# Create workflow
+```{r}
+bikes_wflow <- 
+  workflow() %>% 
+  add_model(model_07_boost_tree_xgboost) %>% 
+  add_recipe(bikes_recipe)
+
+bikes_wflow
+```
+
+# Fit
+
+```{r}
+bikes_fit <- 
+  bikes_wflow %>% 
+  fit(data = bikes_train)
+```
+
+# Predict
+```{r}
+predictions <- predict(bikes_fit, bikes_test)
+
+predictions
+```

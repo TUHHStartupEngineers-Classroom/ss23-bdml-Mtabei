@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.475">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="author" content="Joschka Schwarz">
+<meta name="dcterms.date" content="2023-06-03">
+<title>MyLabJournal - Regression</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../assets/icons/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark"><script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script><link href="../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+</head>
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg navbar-dark "><div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">MyLabJournal</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+<li class="nav-item">
+    <a class="nav-link" href="../../index.html">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-journal" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Journal</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-journal">
+<li>
+    <a class="dropdown-item" href="../../content/01_journal/Chapter_1_Challenge.html">
+ <span class="dropdown-text">01 Machine Learning Fundamentals</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../content/01_journal/Regression.html">
+ <span class="dropdown-text">02 Regression</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../content/01_journal/AutomatedML.html">
+ <span class="dropdown-text">03 Automated Machine Learning with H2O</span></a>
+  </li>  
+    </ul>
+</li>
+  <li class="nav-item">
+    <a class="nav-link" href="../../content/02_notes/05_class_notes.html">
+ <span class="menu-text">Class notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../content/03_other/06_links.html">
+ <span class="menu-text">Links</span></a>
+  </li>  
+</ul>
+<div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Contents</h2>
+   
+  <ul class="collapse">
+<li><a href="#libraries" id="toc-libraries" class="nav-link active" data-scroll-target="#libraries"><span class="toc-section-number">1</span>  Libraries</a></li>
+  <li><a href="#data-set" id="toc-data-set" class="nav-link" data-scroll-target="#data-set"><span class="toc-section-number">2</span>  Data set</a></li>
+  <li><a href="#split-the-data-into-training-and-testing-sets" id="toc-split-the-data-into-training-and-testing-sets" class="nav-link" data-scroll-target="#split-the-data-into-training-and-testing-sets"><span class="toc-section-number">3</span>  Split the data into training and testing sets</a></li>
+  <li><a href="#create-a-model" id="toc-create-a-model" class="nav-link" data-scroll-target="#create-a-model"><span class="toc-section-number">4</span>  Create a model</a></li>
+  <li><a href="#create-a-recipe" id="toc-create-a-recipe" class="nav-link" data-scroll-target="#create-a-recipe"><span class="toc-section-number">5</span>  Create a recipe</a></li>
+  <li><a href="#create-workflow" id="toc-create-workflow" class="nav-link" data-scroll-target="#create-workflow"><span class="toc-section-number">6</span>  Create workflow</a></li>
+  <li><a href="#fit" id="toc-fit" class="nav-link" data-scroll-target="#fit"><span class="toc-section-number">7</span>  Fit</a></li>
+  <li><a href="#predict" id="toc-predict" class="nav-link" data-scroll-target="#predict"><span class="toc-section-number">8</span>  Predict</a></li>
+  </ul></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<h1 class="title">Regression</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Joschka Schwarz </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 3, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header><section id="libraries" class="level1" data-number="1"><h1 data-number="1">
+<span class="header-section-number">1</span> Libraries</h1>
+<div class="cell" data-hash="Regression_cache/html/unnamed-chunk-1_340614ffbbac53dab6f9f90325cf7db5">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(recipes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; Loading required package: dplyr</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; 
+#&gt; Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; The following objects are masked from 'package:stats':
+#&gt; 
+#&gt;     filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; The following objects are masked from 'package:base':
+#&gt; 
+#&gt;     intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; 
+#&gt; Attaching package: 'recipes'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; The following object is masked from 'package:stats':
+#&gt; 
+#&gt;     step</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="fu">library</span>(parsnip)</span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="fu">library</span>(yardstick)</span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="fu">library</span>(tidymodels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; ── Attaching packages ────────────────────────────────────── tidymodels 1.1.0 ──</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; ✔ broom        1.0.4     ✔ rsample      1.1.1
+#&gt; ✔ dials        1.2.0     ✔ tibble       3.2.1
+#&gt; ✔ ggplot2      3.4.2     ✔ tidyr        1.3.0
+#&gt; ✔ infer        1.0.4     ✔ tune         1.1.1
+#&gt; ✔ modeldata    1.1.0     ✔ workflows    1.1.3
+#&gt; ✔ purrr        1.0.1     ✔ workflowsets 1.0.1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
+#&gt; ✖ purrr::discard() masks scales::discard()
+#&gt; ✖ dplyr::filter()  masks stats::filter()
+#&gt; ✖ dplyr::lag()     masks stats::lag()
+#&gt; ✖ recipes::step()  masks stats::step()
+#&gt; • Use tidymodels_prefer() to resolve common conflicts.</code></pre>
+</div>
+</div>
+</section><section id="data-set" class="level1" data-number="2"><h1 data-number="2">
+<span class="header-section-number">2</span> Data set</h1>
+<div class="cell" data-hash="Regression_cache/html/unnamed-chunk-2_2be946d0a12f3de4f87652321a7bc2e6">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>bike_orderlines_tbl <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"./../../assets/DataSets/bike_orderlines.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section><section id="split-the-data-into-training-and-testing-sets" class="level1" data-number="3"><h1 data-number="3">
+<span class="header-section-number">3</span> Split the data into training and testing sets</h1>
+<div class="cell" data-hash="Regression_cache/html/unnamed-chunk-3_5210502ad0991e8d6c20d7e492ad9ff6">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)  <span class="co"># For reproducibility</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a>bikes_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(bike_orderlines_tbl, <span class="at">prop =</span> <span class="fl">0.8</span>)</span>
+<span id="cb13-3"><a href="#cb13-3"></a>bikes_train <span class="ot">&lt;-</span> <span class="fu">training</span>(bikes_split)</span>
+<span id="cb13-4"><a href="#cb13-4"></a>bikes_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(bikes_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section><section id="create-a-model" class="level1" data-number="4"><h1 data-number="4">
+<span class="header-section-number">4</span> Create a model</h1>
+<div class="cell" data-hash="Regression_cache/html/unnamed-chunk-4_c7c3ed9419c32a70fbad28724241b872">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb14-2"><a href="#cb14-2"></a>model_07_boost_tree_xgboost <span class="ot">&lt;-</span> <span class="fu">boost_tree</span>(</span>
+<span id="cb14-3"><a href="#cb14-3"></a>  <span class="at">mode =</span> <span class="st">"regression"</span>,</span>
+<span id="cb14-4"><a href="#cb14-4"></a>  <span class="at">mtry =</span> <span class="dv">30</span>,</span>
+<span id="cb14-5"><a href="#cb14-5"></a>  <span class="at">learn_rate =</span> <span class="fl">0.25</span>,</span>
+<span id="cb14-6"><a href="#cb14-6"></a>  <span class="at">tree_depth =</span> <span class="dv">7</span></span>
+<span id="cb14-7"><a href="#cb14-7"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-8"><a href="#cb14-8"></a>  <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section><section id="create-a-recipe" class="level1" data-number="5"><h1 data-number="5">
+<span class="header-section-number">5</span> Create a recipe</h1>
+<div class="cell" data-hash="Regression_cache/html/unnamed-chunk-5_a41e9925d8c788443a0dbdac0e657b88">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>bikes_recipe <span class="ot">&lt;-</span> <span class="fu">recipe</span>(price <span class="sc">~</span> ., <span class="at">data =</span> bikes_train) <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>  <span class="fu">step_rm</span>(order_id, order_line, order_date, url, location, lat, lng) <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal</span>(), <span class="sc">-</span><span class="fu">all_outcomes</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb15-4"><a href="#cb15-4"></a>  <span class="fu">prep</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section><section id="create-workflow" class="level1" data-number="6"><h1 data-number="6">
+<span class="header-section-number">6</span> Create workflow</h1>
+<div class="cell" data-hash="Regression_cache/html/unnamed-chunk-6_446a405590b2b83de637c31a92de8f6b">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>bikes_wflow <span class="ot">&lt;-</span> </span>
+<span id="cb16-2"><a href="#cb16-2"></a>  <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb16-3"><a href="#cb16-3"></a>  <span class="fu">add_model</span>(model_07_boost_tree_xgboost) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-4"><a href="#cb16-4"></a>  <span class="fu">add_recipe</span>(bikes_recipe)</span>
+<span id="cb16-5"><a href="#cb16-5"></a></span>
+<span id="cb16-6"><a href="#cb16-6"></a>bikes_wflow</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; ══ Workflow ════════════════════════════════════════════════════════════════════
+#&gt; Preprocessor: Recipe
+#&gt; Model: boost_tree()
+#&gt; 
+#&gt; ── Preprocessor ────────────────────────────────────────────────────────────────
+#&gt; 2 Recipe Steps
+#&gt; 
+#&gt; • step_rm()
+#&gt; • step_dummy()
+#&gt; 
+#&gt; ── Model ───────────────────────────────────────────────────────────────────────
+#&gt; Boosted Tree Model Specification (regression)
+#&gt; 
+#&gt; Main Arguments:
+#&gt;   mtry = 30
+#&gt;   tree_depth = 7
+#&gt;   learn_rate = 0.25
+#&gt; 
+#&gt; Computational engine: xgboost</code></pre>
+</div>
+</div>
+</section><section id="fit" class="level1" data-number="7"><h1 data-number="7">
+<span class="header-section-number">7</span> Fit</h1>
+<div class="cell" data-hash="Regression_cache/html/unnamed-chunk-7_4e4136740b071824b6c0a06de07caca4">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>bikes_fit <span class="ot">&lt;-</span> </span>
+<span id="cb18-2"><a href="#cb18-2"></a>  bikes_wflow <span class="sc">%&gt;%</span> </span>
+<span id="cb18-3"><a href="#cb18-3"></a>  <span class="fu">fit</span>(<span class="at">data =</span> bikes_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section><section id="predict" class="level1" data-number="8"><h1 data-number="8">
+<span class="header-section-number">8</span> Predict</h1>
+<div class="cell" data-hash="Regression_cache/html/unnamed-chunk-8_259d85027a50d9939e14115a47783fb1">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>predictions <span class="ot">&lt;-</span> <span class="fu">predict</span>(bikes_fit, bikes_test)</span>
+<span id="cb19-2"><a href="#cb19-2"></a></span>
+<span id="cb19-3"><a href="#cb19-3"></a>predictions</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[".pred"],"name":[1],"type":["dbl"],"align":["right"]}],"data":[{"1":"1851.8799"},{"1":"3409.6282"},{"1":"2648.3228"},{"1":"3208.5317"},{"1":"1029.4047"},{"1":"4693.9790"},{"1":"1272.9819"},{"1":"3524.0195"},{"1":"3409.6282"},{"1":"2486.3772"},{"1":"2811.2144"},{"1":"5593.5610"},{"1":"4601.1187"},{"1":"2152.4177"},{"1":"2245.3940"},{"1":"3251.0618"},{"1":"3409.6282"},{"1":"3912.1421"},{"1":"3453.4304"},{"1":"3866.0913"},{"1":"1030.7953"},{"1":"3772.5872"},{"1":"1902.6246"},{"1":"1015.0651"},{"1":"5132.5010"},{"1":"3161.3726"},{"1":"1382.1077"},{"1":"3161.3726"},{"1":"2337.7893"},{"1":"2245.3940"},{"1":"3524.0195"},{"1":"1408.1217"},{"1":"958.6671"},{"1":"4322.4873"},{"1":"2465.1511"},{"1":"2897.4343"},{"1":"1918.9207"},{"1":"3161.3726"},{"1":"1408.1217"},{"1":"1408.1217"},{"1":"3161.3726"},{"1":"4193.5332"},{"1":"1567.5029"},{"1":"2152.4177"},{"1":"3701.9980"},{"1":"1279.9323"},{"1":"3157.9690"},{"1":"4965.4146"},{"1":"1745.2794"},{"1":"3161.3726"},{"1":"3867.2090"},{"1":"1408.1217"},{"1":"4601.1187"},{"1":"3801.3347"},{"1":"2648.3228"},{"1":"4262.3867"},{"1":"2882.1694"},{"1":"3453.4304"},{"1":"3453.4304"},{"1":"2799.6101"},{"1":"2185.1702"},{"1":"3161.3726"},{"1":"2434.9634"},{"1":"5322.2754"},{"1":"3666.9136"},{"1":"5553.0864"},{"1":"994.9505"},{"1":"4310.1396"},{"1":"1132.2166"},{"1":"3409.6282"},{"1":"3161.3726"},{"1":"1272.9819"},{"1":"1307.3177"},{"1":"3817.2957"},{"1":"1831.6134"},{"1":"4842.1226"},{"1":"2570.2222"},{"1":"2648.3228"},{"1":"1883.2869"},{"1":"1382.1077"},{"1":"2002.8829"},{"1":"6105.5996"},{"1":"3509.2769"},{"1":"6343.1353"},{"1":"2777.1133"},{"1":"2838.6545"},{"1":"2601.1733"},{"1":"3453.4304"},{"1":"3553.2856"},{"1":"3263.7166"},{"1":"2777.1133"},{"1":"6949.7217"},{"1":"2882.1694"},{"1":"3932.4861"},{"1":"2340.8547"},{"1":"4660.4478"},{"1":"4749.7837"},{"1":"3408.3188"},{"1":"1549.9709"},{"1":"3524.0195"},{"1":"5180.8682"},{"1":"3986.7688"},{"1":"3025.6809"},{"1":"3817.2957"},{"1":"3817.2957"},{"1":"2245.3940"},{"1":"3409.6282"},{"1":"3812.8054"},{"1":"2897.4343"},{"1":"3866.0913"},{"1":"2289.7405"},{"1":"4660.4478"},{"1":"1029.4047"},{"1":"2854.4924"},{"1":"1458.8665"},{"1":"6443.7817"},{"1":"1831.6134"},{"1":"3025.6809"},{"1":"2882.1694"},{"1":"3586.1458"},{"1":"1132.2166"},{"1":"1173.4923"},{"1":"2152.4177"},{"1":"3772.5872"},{"1":"2425.4001"},{"1":"3125.0176"},{"1":"3524.0195"},{"1":"3553.2856"},{"1":"2827.8579"},{"1":"2486.3772"},{"1":"888.5793"},{"1":"4091.5967"},{"1":"2570.2222"},{"1":"4391.1846"},{"1":"2717.6416"},{"1":"4660.4478"},{"1":"4575.4434"},{"1":"1368.1927"},{"1":"990.4913"},{"1":"6949.7217"},{"1":"1273.3948"},{"1":"1159.1746"},{"1":"2777.1133"},{"1":"6569.7354"},{"1":"1159.1746"},{"1":"3125.0176"},{"1":"1401.1250"},{"1":"2465.1511"},{"1":"1111.0642"},{"1":"3871.9236"},{"1":"3564.2378"},{"1":"3801.3347"},{"1":"1567.5029"},{"1":"3161.3726"},{"1":"2968.8774"},{"1":"3968.0676"},{"1":"1029.4047"},{"1":"6443.7817"},{"1":"2838.6545"},{"1":"3161.3726"},{"1":"3453.4304"},{"1":"4026.0540"},{"1":"2406.9517"},{"1":"2882.1694"},{"1":"2266.7781"},{"1":"2185.1702"},{"1":"1535.4272"},{"1":"2425.4001"},{"1":"2827.8579"},{"1":"3666.9136"},{"1":"3146.1074"},{"1":"3915.4812"},{"1":"2900.3145"},{"1":"1106.7434"},{"1":"958.6671"},{"1":"3524.0195"},{"1":"6215.4009"},{"1":"3912.1421"},{"1":"5160.3301"},{"1":"6683.0874"},{"1":"3912.1421"},{"1":"3524.0195"},{"1":"1902.6246"},{"1":"3453.4304"},{"1":"3025.6809"},{"1":"1307.3177"},{"1":"1408.1217"},{"1":"3409.6282"},{"1":"5046.7466"},{"1":"3851.8552"},{"1":"3161.3726"},{"1":"2811.2144"},{"1":"3994.3550"},{"1":"1392.8303"},{"1":"1902.6246"},{"1":"3871.9236"},{"1":"3866.0913"},{"1":"1132.2166"},{"1":"1831.6134"},{"1":"3251.0618"},{"1":"3453.4304"},{"1":"3456.9016"},{"1":"2683.2947"},{"1":"4749.7837"},{"1":"5160.3301"},{"1":"1173.4923"},{"1":"1854.5758"},{"1":"3915.4812"},{"1":"3871.9236"},{"1":"2897.4343"},{"1":"1615.0172"},{"1":"3777.0774"},{"1":"888.5793"},{"1":"4575.4434"},{"1":"1549.9709"},{"1":"1598.9473"},{"1":"3161.3726"},{"1":"1598.9473"},{"1":"7236.4829"},{"1":"3586.1458"},{"1":"2152.4177"},{"1":"3867.2090"},{"1":"1108.4733"},{"1":"1854.5758"},{"1":"1469.2732"},{"1":"2245.3940"},{"1":"1450.0450"},{"1":"1272.9819"},{"1":"6839.9204"},{"1":"5918.9375"},{"1":"3509.2769"},{"1":"3161.3726"},{"1":"3871.9236"},{"1":"3524.0195"},{"1":"3161.3726"},{"1":"5662.8877"},{"1":"3564.2378"},{"1":"5160.3301"},{"1":"3572.2927"},{"1":"6569.7354"},{"1":"1851.8799"},{"1":"2648.3228"},{"1":"3859.6465"},{"1":"2777.1133"},{"1":"2598.2195"},{"1":"3818.1833"},{"1":"3867.2090"},{"1":"2190.7649"},{"1":"1030.7953"},{"1":"3817.2957"},{"1":"2434.9634"},{"1":"4410.5298"},{"1":"3161.3726"},{"1":"3125.0176"},{"1":"2779.6763"},{"1":"4660.4478"},{"1":"3812.8054"},{"1":"3866.0913"},{"1":"1173.4923"},{"1":"4660.4478"},{"1":"4213.9956"},{"1":"1831.6134"},{"1":"3408.3188"},{"1":"1025.8845"},{"1":"3666.9136"},{"1":"1173.9202"},{"1":"3871.9236"},{"1":"2838.6545"},{"1":"6443.7817"},{"1":"3161.3726"},{"1":"2465.1511"},{"1":"3524.0195"},{"1":"6293.3394"},{"1":"958.6671"},{"1":"5046.7466"},{"1":"3453.4304"},{"1":"4815.8623"},{"1":"2900.3145"},{"1":"3001.9363"},{"1":"2897.4343"},{"1":"4410.5298"},{"1":"4749.7837"},{"1":"3509.2769"},{"1":"2897.4343"},{"1":"3453.4304"},{"1":"2340.8547"},{"1":"2486.3772"},{"1":"6683.0371"},{"1":"994.9505"},{"1":"1745.2794"},{"1":"4114.6592"},{"1":"1195.3459"},{"1":"2588.8616"},{"1":"5662.8877"},{"1":"1215.1959"},{"1":"3161.3726"},{"1":"4326.5864"},{"1":"2838.6545"},{"1":"1030.7953"},{"1":"2900.3145"},{"1":"2759.8669"},{"1":"2289.7405"},{"1":"2897.4343"},{"1":"3666.9136"},{"1":"2779.4304"},{"1":"3706.4883"},{"1":"2897.4343"},{"1":"1854.5758"},{"1":"2897.4343"},{"1":"2152.4177"},{"1":"2811.2144"},{"1":"1408.1217"},{"1":"3867.2090"},{"1":"2465.1511"},{"1":"1132.2166"},{"1":"3161.3726"},{"1":"1173.4923"},{"1":"2152.4177"},{"1":"4213.9956"},{"1":"5662.8877"},{"1":"1113.7194"},{"1":"958.6671"},{"1":"3817.2957"},{"1":"3403.5864"},{"1":"1108.4733"},{"1":"3453.4304"},{"1":"2601.1733"},{"1":"3932.4861"},{"1":"6248.0903"},{"1":"3666.9136"},{"1":"2777.1133"},{"1":"3025.6809"},{"1":"1745.2794"},{"1":"2425.4001"},{"1":"4322.4873"},{"1":"3777.0774"},{"1":"5972.9531"},{"1":"1487.7117"},{"1":"2799.6101"},{"1":"1195.3459"},{"1":"3403.5864"},{"1":"1624.0833"},{"1":"993.4946"},{"1":"3064.4585"},{"1":"3321.9375"},{"1":"3509.2769"},{"1":"3524.0195"},{"1":"3714.4902"},{"1":"4326.5864"},{"1":"3553.2856"},{"1":"3509.2769"},{"1":"4310.1396"},{"1":"1173.9202"},{"1":"2759.8669"},{"1":"1458.8665"},{"1":"3161.3726"},{"1":"4114.6592"},{"1":"3453.4304"},{"1":"1030.7953"},{"1":"3859.6465"},{"1":"1272.9819"},{"1":"3146.1074"},{"1":"3994.3550"},{"1":"993.4946"},{"1":"2152.4177"},{"1":"1408.1217"},{"1":"1382.1077"},{"1":"6443.7817"},{"1":"4749.7837"},{"1":"5180.8682"},{"1":"4310.1396"},{"1":"4388.8398"},{"1":"3064.4585"},{"1":"3706.4883"},{"1":"3817.2957"},{"1":"2601.1733"},{"1":"3706.4883"},{"1":"3666.9136"},{"1":"1030.7953"},{"1":"4842.1226"},{"1":"4045.3896"},{"1":"2882.1694"},{"1":"3161.3726"},{"1":"3859.6465"},{"1":"3866.0913"},{"1":"6343.1353"},{"1":"3157.9690"},{"1":"3553.2856"},{"1":"3871.9236"},{"1":"2406.9517"},{"1":"4337.2871"},{"1":"3777.0774"},{"1":"1029.3826"},{"1":"2647.3625"},{"1":"2434.9634"},{"1":"1307.3177"},{"1":"1173.4923"},{"1":"3866.0913"},{"1":"1487.7117"},{"1":"1029.4047"},{"1":"3524.0195"},{"1":"1173.4923"},{"1":"2494.7393"},{"1":"3553.2856"},{"1":"2799.6101"},{"1":"3797.7322"},{"1":"2152.4177"},{"1":"3453.4304"},{"1":"3524.0195"},{"1":"1132.2166"},{"1":"2777.1133"},{"1":"5160.3301"},{"1":"3871.9236"},{"1":"1408.1217"},{"1":"3564.2378"},{"1":"1307.3177"},{"1":"1401.1250"},{"1":"2777.1133"},{"1":"1487.7117"},{"1":"3706.4883"},{"1":"3915.4812"},{"1":"2425.4001"},{"1":"1018.4766"},{"1":"5662.8877"},{"1":"1029.4047"},{"1":"3027.5989"},{"1":"3178.7339"},{"1":"3524.0195"},{"1":"3161.3726"},{"1":"2827.8579"},{"1":"3564.2378"},{"1":"2103.6816"},{"1":"1159.1746"},{"1":"3161.3726"},{"1":"4322.4873"},{"1":"1195.3459"},{"1":"6443.7817"},{"1":"1854.5758"},{"1":"2448.3984"},{"1":"994.9505"},{"1":"6949.7217"},{"1":"4290.7031"},{"1":"1458.8665"},{"1":"2779.6763"},{"1":"3871.9236"},{"1":"3714.4902"},{"1":"2406.9517"},{"1":"1173.4923"},{"1":"3403.5864"},{"1":"3409.6282"},{"1":"1902.6246"},{"1":"5322.2754"},{"1":"3161.3726"},{"1":"3564.2378"},{"1":"3263.7166"},{"1":"1307.3177"},{"1":"958.6671"},{"1":"3409.6282"},{"1":"3181.8691"},{"1":"2799.6101"},{"1":"1831.6134"},{"1":"1215.1959"},{"1":"2152.4177"},{"1":"2897.4343"},{"1":"3046.8777"},{"1":"2772.4368"},{"1":"5112.7349"},{"1":"2465.1511"},{"1":"2897.4343"},{"1":"1726.3450"},{"1":"1476.6921"},{"1":"5132.5010"},{"1":"2375.5698"},{"1":"4290.7031"},{"1":"2337.7893"},{"1":"2152.4177"},{"1":"1902.6246"},{"1":"3161.3726"},{"1":"3572.2927"},{"1":"1108.4733"},{"1":"2152.4177"},{"1":"5069.9038"},{"1":"2152.4177"},{"1":"3932.4861"},{"1":"2152.4177"},{"1":"2406.9517"},{"1":"2375.5698"},{"1":"1408.1217"},{"1":"2777.1133"},{"1":"1411.6791"},{"1":"2796.5515"},{"1":"2648.3228"},{"1":"5303.0664"},{"1":"1029.3826"},{"1":"2152.4177"},{"1":"3146.1074"},{"1":"3453.4304"},{"1":"4660.4478"},{"1":"2922.3840"},{"1":"1113.7194"},{"1":"5132.5010"},{"1":"2648.3228"},{"1":"1408.1217"},{"1":"1030.7953"},{"1":"958.6671"},{"1":"3866.0913"},{"1":"943.1095"},{"1":"2799.6101"},{"1":"2800.5205"},{"1":"3453.4304"},{"1":"4815.8623"},{"1":"3812.8054"},{"1":"3161.3726"},{"1":"3125.0176"},{"1":"1745.2794"},{"1":"4026.0540"},{"1":"3871.9236"},{"1":"3866.0913"},{"1":"3001.9363"},{"1":"2897.4343"},{"1":"3812.8054"},{"1":"2152.4177"},{"1":"6105.5996"},{"1":"3866.0913"},{"1":"1173.4923"},{"1":"4693.9790"},{"1":"3453.4304"},{"1":"1902.6246"},{"1":"3801.3347"},{"1":"1307.3177"},{"1":"3064.4585"},{"1":"1272.9819"},{"1":"4575.4434"},{"1":"3161.3726"},{"1":"6248.0903"},{"1":"2601.1733"},{"1":"3509.2769"},{"1":"4310.1396"},{"1":"3509.2769"},{"1":"3912.1421"},{"1":"2648.3228"},{"1":"3524.0195"},{"1":"2981.4941"},{"1":"1173.9202"},{"1":"4053.0686"},{"1":"4391.1846"},{"1":"3524.0195"},{"1":"1394.0179"},{"1":"3866.0913"},{"1":"4114.6592"},{"1":"3409.6282"},{"1":"2566.4741"},{"1":"3453.4304"},{"1":"3161.3726"},{"1":"4660.4478"},{"1":"2777.1133"},{"1":"2827.8579"},{"1":"1382.1077"},{"1":"3524.0195"},{"1":"3851.8552"},{"1":"3932.4861"},{"1":"2897.4343"},{"1":"1902.6246"},{"1":"2772.4368"},{"1":"3867.2090"},{"1":"4091.5967"},{"1":"2598.2195"},{"1":"2185.1702"},{"1":"2299.7178"},{"1":"3064.4585"},{"1":"2434.9634"},{"1":"6569.7354"},{"1":"3871.9236"},{"1":"1458.8665"},{"1":"1504.8254"},{"1":"2685.5547"},{"1":"1487.7117"},{"1":"3986.7688"},{"1":"1229.2028"},{"1":"2465.1511"},{"1":"3001.9363"},{"1":"3524.0195"},{"1":"2683.2947"},{"1":"7177.2427"},{"1":"2465.1511"},{"1":"3161.3726"},{"1":"4322.4873"},{"1":"5046.7466"},{"1":"3409.6282"},{"1":"2190.7649"},{"1":"993.4946"},{"1":"6215.4009"},{"1":"2900.3145"},{"1":"2565.3569"},{"1":"3403.5864"},{"1":"1567.5029"},{"1":"2799.6101"},{"1":"3666.9136"},{"1":"5660.9741"},{"1":"1598.9473"},{"1":"3161.3726"},{"1":"2882.1694"},{"1":"3161.3726"},{"1":"2190.7649"},{"1":"3524.0195"},{"1":"3986.7688"},{"1":"3161.3726"},{"1":"3706.4883"},{"1":"1408.1217"},{"1":"6082.7544"},{"1":"5322.2754"},{"1":"3851.8552"},{"1":"4749.7837"},{"1":"3866.0913"},{"1":"1902.6246"},{"1":"3866.0913"},{"1":"4815.8623"},{"1":"2152.4177"},{"1":"3453.4304"},{"1":"3409.6282"},{"1":"2777.1133"},{"1":"6082.7544"},{"1":"1408.1217"},{"1":"2772.4368"},{"1":"4815.8623"},{"1":"3553.2856"},{"1":"3409.6282"},{"1":"1273.3948"},{"1":"4119.1494"},{"1":"3912.1421"},{"1":"2601.1733"},{"1":"2897.4343"},{"1":"1851.8799"},{"1":"3572.2927"},{"1":"3403.5864"},{"1":"6975.5532"},{"1":"958.6671"},{"1":"2434.9634"},{"1":"3178.7339"},{"1":"1273.3948"},{"1":"3161.3726"},{"1":"4815.8623"},{"1":"2465.1511"},{"1":"3524.0195"},{"1":"3851.8552"},{"1":"1408.1217"},{"1":"1408.1217"},{"1":"3033.1218"},{"1":"1392.8303"},{"1":"3867.2090"},{"1":"3408.3188"},{"1":"2185.1702"},{"1":"1401.1250"},{"1":"1307.3177"},{"1":"1902.6246"},{"1":"2827.8579"},{"1":"4026.0540"},{"1":"2425.4001"},{"1":"1831.6134"},{"1":"3912.1421"},{"1":"2266.7781"},{"1":"3025.6809"},{"1":"4337.2871"},{"1":"1195.3459"},{"1":"3564.2378"},{"1":"3564.2378"},{"1":"6569.7354"},{"1":"4815.8623"},{"1":"3161.3726"},{"1":"4842.1226"},{"1":"2759.8669"},{"1":"3208.5317"},{"1":"6569.7354"},{"1":"2245.3940"},{"1":"958.6671"},{"1":"3714.4902"},{"1":"1408.1217"},{"1":"6975.5532"},{"1":"1831.6134"},{"1":"2827.8579"},{"1":"1159.1746"},{"1":"2900.3145"},{"1":"2425.4001"},{"1":"1195.3459"},{"1":"1272.9819"},{"1":"3161.3726"},{"1":"3912.1421"},{"1":"3263.7166"},{"1":"1247.9943"},{"1":"1408.1217"},{"1":"4842.1226"},{"1":"3178.7339"},{"1":"4660.4478"},{"1":"1108.4733"},{"1":"3178.7339"},{"1":"5553.0864"},{"1":"1549.9709"},{"1":"4660.4478"},{"1":"2897.4343"},{"1":"3161.3726"},{"1":"1902.6246"},{"1":"2811.2144"},{"1":"1173.9202"},{"1":"3046.8777"},{"1":"3524.0195"},{"1":"1487.7117"},{"1":"1914.8477"},{"1":"2900.3145"},{"1":"2185.1702"},{"1":"3912.1421"},{"1":"3564.2378"},{"1":"2190.7649"},{"1":"3666.9136"},{"1":"3866.0913"},{"1":"1272.9819"},{"1":"1411.6791"},{"1":"2190.7649"},{"1":"3851.8552"},{"1":"3558.1204"},{"1":"1851.8799"},{"1":"3001.9363"},{"1":"1132.2166"},{"1":"2779.6763"},{"1":"2152.4177"},{"1":"3453.4304"},{"1":"6443.7817"},{"1":"5046.7466"},{"1":"1831.6134"},{"1":"2152.4177"},{"1":"3001.9363"},{"1":"2777.1133"},{"1":"3666.9136"},{"1":"2779.6763"},{"1":"2601.1733"},{"1":"1408.1217"},{"1":"1487.7117"},{"1":"4984.3574"},{"1":"3564.2378"},{"1":"1549.9709"},{"1":"4290.7031"},{"1":"3453.4304"},{"1":"2779.6763"},{"1":"3666.9136"},{"1":"4178.4434"},{"1":"6248.0903"},{"1":"2570.2222"},{"1":"2190.7649"},{"1":"3509.2769"},{"1":"6683.0371"},{"1":"2051.7842"},{"1":"2406.9517"},{"1":"2570.2222"},{"1":"3572.2927"},{"1":"2777.1133"},{"1":"3025.6809"},{"1":"3263.7166"},{"1":"3161.3726"},{"1":"3025.6809"},{"1":"2190.7649"},{"1":"1382.1077"},{"1":"3409.6282"},{"1":"3994.3550"},{"1":"3181.8691"},{"1":"4842.1226"},{"1":"2731.6274"},{"1":"3777.0774"},{"1":"3564.2378"},{"1":"6443.7817"},{"1":"6082.7544"},{"1":"2152.4177"},{"1":"2777.1133"},{"1":"4601.6401"},{"1":"6293.3394"},{"1":"3871.9236"},{"1":"2340.8547"},{"1":"2882.1694"},{"1":"4310.1396"},{"1":"2190.7649"},{"1":"3509.2769"},{"1":"4431.3091"},{"1":"5069.9038"},{"1":"2897.4343"},{"1":"4391.1846"},{"1":"1307.3177"},{"1":"1029.3826"},{"1":"1030.7953"},{"1":"1408.1217"},{"1":"2811.2144"},{"1":"3453.4304"},{"1":"3564.2378"},{"1":"3161.3726"},{"1":"3866.0913"},{"1":"2152.4177"},{"1":"3706.4883"},{"1":"2570.2222"},{"1":"4601.6401"},{"1":"3064.4585"},{"1":"994.9505"},{"1":"3146.1074"},{"1":"3980.4150"},{"1":"5322.2754"},{"1":"4199.7251"},{"1":"6237.8877"},{"1":"3046.8777"},{"1":"1382.1077"},{"1":"3866.0913"},{"1":"3263.7166"},{"1":"994.9505"},{"1":"1549.9709"},{"1":"4326.5864"},{"1":"3161.3726"},{"1":"1132.2166"},{"1":"3772.5872"},{"1":"2601.1733"},{"1":"2340.8547"},{"1":"1854.5758"},{"1":"2465.1511"},{"1":"1408.1217"},{"1":"4290.7031"},{"1":"2190.7649"},{"1":"3064.4585"},{"1":"3817.2957"},{"1":"2838.6545"},{"1":"3409.6282"},{"1":"3524.0195"},{"1":"3866.0913"},{"1":"3714.4902"},{"1":"1279.9323"},{"1":"4322.4873"},{"1":"2811.2144"},{"1":"5662.8877"},{"1":"3553.2856"},{"1":"3064.4585"},{"1":"3801.3347"},{"1":"4026.0540"},{"1":"2800.5205"},{"1":"1173.4923"},{"1":"3133.5674"},{"1":"2648.3228"},{"1":"1392.8303"},{"1":"1902.6246"},{"1":"2772.4368"},{"1":"1401.8278"},{"1":"2570.2222"},{"1":"5660.9741"},{"1":"3706.4883"},{"1":"5032.7246"},{"1":"4189.1436"},{"1":"3125.0176"},{"1":"1279.9323"},{"1":"3867.2090"},{"1":"4310.1396"},{"1":"3871.9236"},{"1":"3777.0774"},{"1":"2838.6545"},{"1":"3553.2856"},{"1":"3509.2769"},{"1":"1745.2794"},{"1":"3161.3726"},{"1":"3125.0176"},{"1":"1549.9709"},{"1":"6569.7354"},{"1":"4241.7080"},{"1":"2245.3940"},{"1":"3986.7688"},{"1":"1029.3826"},{"1":"2811.2144"},{"1":"3866.0913"},{"1":"4965.4146"},{"1":"4815.8623"},{"1":"2897.4343"},{"1":"5662.8877"},{"1":"4693.9790"},{"1":"3968.0676"},{"1":"6082.7544"},{"1":"4310.1396"},{"1":"4660.4478"},{"1":"3777.0298"},{"1":"2434.9634"},{"1":"1745.2794"},{"1":"852.2960"},{"1":"4310.1396"},{"1":"1411.6791"},{"1":"3701.9980"},{"1":"1408.1217"},{"1":"1038.1395"},{"1":"3524.0195"},{"1":"2683.2947"},{"1":"2827.8579"},{"1":"1549.9709"},{"1":"3871.9236"},{"1":"6569.7354"},{"1":"1902.6246"},{"1":"3453.4304"},{"1":"2900.3145"},{"1":"4660.4478"},{"1":"2152.4177"},{"1":"1057.6429"},{"1":"1307.3177"},{"1":"6343.1353"},{"1":"3851.8552"},{"1":"2434.9634"},{"1":"2800.5205"},{"1":"2882.1694"},{"1":"3409.6282"},{"1":"4326.5864"},{"1":"2245.3940"},{"1":"2731.6274"},{"1":"1108.4733"},{"1":"2152.4177"},{"1":"3871.9236"},{"1":"3161.3726"},{"1":"1382.1077"},{"1":"1272.9819"},{"1":"3706.4883"},{"1":"2827.8579"},{"1":"3797.7322"},{"1":"3146.1074"},{"1":"2882.1694"},{"1":"1030.7953"},{"1":"2647.3625"},{"1":"4842.1226"},{"1":"3866.0913"},{"1":"1272.9819"},{"1":"2882.1694"},{"1":"3125.0176"},{"1":"2811.2144"},{"1":"3453.4304"},{"1":"2897.4343"},{"1":"3851.8552"},{"1":"3064.4585"},{"1":"2772.4368"},{"1":"3125.0176"},{"1":"1401.1250"},{"1":"1902.6246"},{"1":"1307.3177"},{"1":"1038.1395"},{"1":"6248.0903"},{"1":"3866.0913"},{"1":"3161.3726"},{"1":"1030.7953"},{"1":"2811.2144"},{"1":"1273.3948"},{"1":"1745.2794"},{"1":"1273.3948"},{"1":"1487.7117"},{"1":"6293.3394"},{"1":"5046.7466"},{"1":"2190.7649"},{"1":"2245.3940"},{"1":"2777.1133"},{"1":"3524.0195"},{"1":"3866.0913"},{"1":"1272.9819"},{"1":"3251.0618"},{"1":"3817.2957"},{"1":"3161.3726"},{"1":"2838.6545"},{"1":"5112.7349"},{"1":"2897.4343"},{"1":"2685.5547"},{"1":"4322.4873"},{"1":"2570.2222"},{"1":"3867.2090"},{"1":"3161.3726"},{"1":"4601.6401"},{"1":"3994.3550"},{"1":"4213.9956"},{"1":"3524.0195"},{"1":"3817.2957"},{"1":"1159.1746"},{"1":"2981.4941"},{"1":"2152.4177"},{"1":"1902.6246"},{"1":"1902.6246"},{"1":"1487.7117"},{"1":"5322.2754"},{"1":"1469.2732"},{"1":"2882.1694"},{"1":"4026.0540"},{"1":"1272.9819"},{"1":"4601.1187"},{"1":"2838.6545"},{"1":"1029.4047"},{"1":"2601.1733"},{"1":"2425.4001"},{"1":"3409.6282"},{"1":"3456.9016"},{"1":"1567.5029"},{"1":"4259.0464"},{"1":"2580.2527"},{"1":"5132.5010"},{"1":"6443.7817"},{"1":"3001.9363"},{"1":"1011.3832"},{"1":"3801.3347"},{"1":"3994.3550"},{"1":"3564.2378"},{"1":"3912.1421"},{"1":"4091.5967"},{"1":"1396.0258"},{"1":"5069.9038"},{"1":"3812.8054"},{"1":"1851.8799"},{"1":"4189.1436"},{"1":"2648.3228"},{"1":"4965.4146"},{"1":"4699.1460"},{"1":"1902.6246"},{"1":"4575.4434"},{"1":"2759.8669"},{"1":"3125.0176"},{"1":"6443.7817"},{"1":"3161.3726"},{"1":"3851.8552"},{"1":"2800.5205"},{"1":"3811.6370"},{"1":"2897.4343"},{"1":"1038.1395"},{"1":"3181.8691"},{"1":"3851.8552"},{"1":"3932.4861"},{"1":"2245.3940"},{"1":"4660.4478"},{"1":"3453.4304"},{"1":"3125.0176"},{"1":"1143.0371"},{"1":"4601.6401"},{"1":"1851.8799"},{"1":"2772.4368"},{"1":"1111.0642"},{"1":"3817.2957"},{"1":"2570.2222"},{"1":"957.9813"},{"1":"4326.5864"},{"1":"2434.9634"},{"1":"1215.1959"},{"1":"5660.9741"},{"1":"3772.5872"},{"1":"5660.9741"},{"1":"4693.9790"},{"1":"4026.0540"},{"1":"1023.8221"},{"1":"2777.1133"},{"1":"3866.0913"},{"1":"1307.3177"},{"1":"2811.2144"},{"1":"3564.2378"},{"1":"4326.5864"},{"1":"3818.1833"},{"1":"1408.1217"},{"1":"2425.4001"},{"1":"3867.2090"},{"1":"3125.0176"},{"1":"5132.5010"},{"1":"1226.8989"},{"1":"2796.5515"},{"1":"1408.1217"},{"1":"2897.4343"},{"1":"5662.8877"},{"1":"3161.3726"},{"1":"5517.9277"},{"1":"1307.3177"},{"1":"2073.8511"},{"1":"3524.0195"},{"1":"1961.2478"},{"1":"1411.6791"},{"1":"1164.5818"},{"1":"5322.2754"},{"1":"2882.1694"},{"1":"958.6671"},{"1":"3033.1218"},{"1":"5112.7349"},{"1":"4189.1436"},{"1":"3564.2378"},{"1":"2685.5547"},{"1":"4053.0686"},{"1":"3453.4304"},{"1":"3161.3726"},{"1":"1902.6246"},{"1":"4803.1260"},{"1":"4660.4478"},{"1":"2340.8547"},{"1":"3915.4812"},{"1":"3453.4304"},{"1":"3509.2769"},{"1":"2683.2947"},{"1":"3064.4585"},{"1":"3453.4304"},{"1":"5303.0664"},{"1":"3666.9136"},{"1":"3001.9363"},{"1":"3125.0176"},{"1":"3161.3726"},{"1":"1831.6134"},{"1":"1902.6246"},{"1":"3453.4304"},{"1":"2570.2222"},{"1":"3564.2378"},{"1":"3161.3726"},{"1":"3001.9363"},{"1":"3817.2957"},{"1":"2777.1133"},{"1":"3866.0913"},{"1":"993.4946"},{"1":"2465.1511"},{"1":"1408.1217"},{"1":"4601.1187"},{"1":"2838.6545"},{"1":"2772.4368"},{"1":"4660.4478"},{"1":"1108.4733"},{"1":"3146.1074"},{"1":"1549.9709"},{"1":"5973.1074"},{"1":"3524.0195"},{"1":"4322.4873"},{"1":"3409.6282"},{"1":"6443.7817"},{"1":"5081.2949"},{"1":"4290.7031"},{"1":"3866.0913"},{"1":"5660.9741"},{"1":"3714.4902"},{"1":"2648.3228"},{"1":"2434.9634"},{"1":"3851.8552"},{"1":"3509.2769"},{"1":"2648.3228"},{"1":"1408.1217"},{"1":"2152.4177"},{"1":"2777.1133"},{"1":"1173.4923"},{"1":"4749.7837"},{"1":"1831.6134"},{"1":"1132.2166"},{"1":"6248.0903"},{"1":"1458.8665"},{"1":"3161.3726"},{"1":"6215.4009"},{"1":"3812.8054"},{"1":"6683.0874"},{"1":"3866.0913"},{"1":"2717.6416"},{"1":"7177.2427"},{"1":"3867.2090"},{"1":"2448.3984"},{"1":"3161.3726"},{"1":"1469.2732"},{"1":"2882.1694"},{"1":"1408.1217"},{"1":"3723.0083"},{"1":"3146.1074"},{"1":"1108.4733"},{"1":"3146.1074"},{"1":"3871.9236"},{"1":"3564.2378"},{"1":"1535.4272"},{"1":"1108.4733"},{"1":"2434.9634"},{"1":"1038.1395"},{"1":"3524.0195"},{"1":"3797.7322"},{"1":"4026.0540"},{"1":"2152.4177"},{"1":"4660.4478"},{"1":"4965.4146"},{"1":"4842.1226"},{"1":"4699.1460"},{"1":"1401.1250"},{"1":"3524.0195"},{"1":"3509.2769"},{"1":"3208.5317"},{"1":"2897.4343"},{"1":"3866.0913"},{"1":"3867.2090"},{"1":"3866.0913"},{"1":"1411.6791"},{"1":"3409.6282"},{"1":"2601.1733"},{"1":"1173.4923"},{"1":"2799.6101"},{"1":"3161.3726"},{"1":"2299.7261"},{"1":"3817.2957"},{"1":"3932.4861"},{"1":"1247.9943"},{"1":"4601.1187"},{"1":"1292.3743"},{"1":"2601.1733"},{"1":"1851.8799"},{"1":"1408.1217"},{"1":"1902.6246"},{"1":"1292.3743"},{"1":"4803.1260"},{"1":"1030.7953"},{"1":"3553.2856"},{"1":"2190.7649"},{"1":"3125.0176"},{"1":"1902.6246"},{"1":"3871.9236"},{"1":"2777.1133"},{"1":"1272.9819"},{"1":"3263.7166"},{"1":"2772.4368"},{"1":"3564.2378"},{"1":"3866.0913"},{"1":"2772.4368"},{"1":"1408.1217"},{"1":"2779.6763"},{"1":"5160.3301"},{"1":"5160.3301"},{"1":"1401.1250"},{"1":"2777.1133"},{"1":"3025.6809"},{"1":"3867.2090"},{"1":"1854.5758"},{"1":"1173.9202"},{"1":"1567.5029"},{"1":"4322.4873"},{"1":"3871.9236"},{"1":"2152.4177"},{"1":"1831.6134"},{"1":"2152.4177"},{"1":"2448.3984"},{"1":"4727.8315"},{"1":"4322.4873"},{"1":"1902.6246"},{"1":"6443.7817"},{"1":"3001.9363"},{"1":"5069.9038"},{"1":"1902.6246"},{"1":"1854.5758"},{"1":"3509.2769"},{"1":"2152.4177"},{"1":"1401.1250"},{"1":"2465.1511"},{"1":"5660.9741"},{"1":"3524.0195"},{"1":"4601.1187"},{"1":"3851.8552"},{"1":"3524.0195"},{"1":"3161.3726"},{"1":"2648.3228"},{"1":"994.9505"},{"1":"2811.2144"},{"1":"4310.1396"},{"1":"2882.1694"},{"1":"1173.4923"},{"1":"1272.9819"},{"1":"3409.6282"},{"1":"1902.6246"},{"1":"2882.1694"},{"1":"1382.1077"},{"1":"1831.6134"},{"1":"3146.1074"},{"1":"3968.0676"},{"1":"2777.1133"},{"1":"3125.0176"},{"1":"4091.5967"},{"1":"3161.3726"},{"1":"1624.0833"},{"1":"4410.5298"},{"1":"1113.7194"},{"1":"1450.0450"},{"1":"4842.1226"},{"1":"3263.7166"},{"1":"2465.1511"},{"1":"6569.7354"},{"1":"2777.1133"},{"1":"5069.9038"},{"1":"4660.4478"},{"1":"2897.4343"},{"1":"3980.4150"},{"1":"2152.4177"},{"1":"3586.1458"},{"1":"3871.9236"},{"1":"3409.6282"},{"1":"3161.3726"},{"1":"3994.3550"},{"1":"5180.8682"},{"1":"6949.7217"},{"1":"1401.1250"},{"1":"3125.0176"},{"1":"3866.0913"},{"1":"3309.4648"},{"1":"1029.3826"},{"1":"2152.4177"},{"1":"2601.1733"},{"1":"4114.6592"},{"1":"3161.3726"},{"1":"2299.7261"},{"1":"2648.3228"},{"1":"3524.0195"},{"1":"2811.2144"},{"1":"1549.9709"},{"1":"2448.3984"},{"1":"3156.1235"},{"1":"2152.4177"},{"1":"6569.7354"},{"1":"1458.8665"},{"1":"3453.4304"},{"1":"6949.7217"},{"1":"3509.2769"},{"1":"1307.3177"},{"1":"1307.3177"},{"1":"2375.5698"},{"1":"3161.3726"},{"1":"6949.7217"},{"1":"2465.1511"},{"1":"3866.0913"},{"1":"3772.5872"},{"1":"3812.8054"},{"1":"3125.0176"},{"1":"1458.8665"},{"1":"1745.2794"},{"1":"3156.1235"},{"1":"1408.1217"},{"1":"3025.6809"},{"1":"2759.8669"},{"1":"5660.9741"},{"1":"4026.0540"},{"1":"2648.3228"},{"1":"1361.6553"},{"1":"1307.3177"},{"1":"1307.3177"},{"1":"2365.9905"},{"1":"1902.6246"},{"1":"1195.3459"},{"1":"1549.9709"},{"1":"2685.5547"},{"1":"3867.2090"},{"1":"1038.1395"},{"1":"1549.9709"},{"1":"4322.4873"},{"1":"2245.3940"},{"1":"2152.4177"},{"1":"3564.2378"},{"1":"1195.3459"},{"1":"3524.0195"},{"1":"5593.5610"},{"1":"2566.4741"},{"1":"4193.5332"},{"1":"3817.2957"},{"1":"3994.3550"},{"1":"1624.0833"},{"1":"3161.3726"},{"1":"3866.0913"},{"1":"3812.8054"},{"1":"2152.4177"},{"1":"994.9505"},{"1":"3025.6809"},{"1":"2961.2742"},{"1":"3227.8159"},{"1":"3064.4585"},{"1":"2759.8669"},{"1":"1408.1217"},{"1":"4660.4478"},{"1":"2425.4001"},{"1":"4213.9956"},{"1":"1396.0258"},{"1":"1029.3826"},{"1":"3178.7339"},{"1":"1273.3948"},{"1":"2098.4739"},{"1":"2152.4177"},{"1":"3828.5598"},{"1":"1854.5758"},{"1":"3524.0195"},{"1":"4727.8315"},{"1":"3509.2769"},{"1":"2777.1133"},{"1":"1292.3743"},{"1":"6215.4009"},{"1":"3524.0195"},{"1":"1978.7798"},{"1":"5160.3301"},{"1":"6248.0903"},{"1":"2425.4001"},{"1":"3811.6370"},{"1":"3524.0195"},{"1":"5160.3301"},{"1":"3032.7341"},{"1":"5069.9038"},{"1":"2897.4343"},{"1":"1549.9709"},{"1":"1487.7117"},{"1":"958.6671"},{"1":"4601.1187"},{"1":"2648.3228"},{"1":"2897.4343"},{"1":"2601.1733"},{"1":"3666.9136"},{"1":"3932.4861"},{"1":"5593.5610"},{"1":"3811.6370"},{"1":"3161.3726"},{"1":"1307.3177"},{"1":"2434.9634"},{"1":"958.6671"},{"1":"994.9505"},{"1":"3866.0913"},{"1":"4337.2871"},{"1":"1038.1395"},{"1":"1831.6134"},{"1":"1292.3743"},{"1":"3714.4902"},{"1":"2185.1702"},{"1":"3986.7688"},{"1":"1487.7117"},{"1":"3001.9363"},{"1":"6082.7544"},{"1":"2777.1133"},{"1":"6215.4009"},{"1":"4749.7837"},{"1":"994.9505"},{"1":"2900.3145"},{"1":"3310.9976"},{"1":"3146.1074"},{"1":"3564.2378"},{"1":"2897.4343"},{"1":"1029.4047"},{"1":"2777.1133"},{"1":"2584.2673"},{"1":"2406.9517"},{"1":"2299.7261"},{"1":"3064.4585"},{"1":"3866.0913"},{"1":"1030.7953"},{"1":"3772.5872"},{"1":"3572.2927"},{"1":"3666.9136"},{"1":"3025.6809"},{"1":"3524.0195"},{"1":"3453.4304"},{"1":"4189.1436"},{"1":"2779.6763"},{"1":"1173.4923"},{"1":"3723.0083"},{"1":"2685.5547"},{"1":"3553.2856"},{"1":"2799.6101"},{"1":"3564.2378"},{"1":"1368.1927"},{"1":"1831.6134"},{"1":"4391.1846"},{"1":"1038.1395"},{"1":"1422.4017"},{"1":"2772.4368"},{"1":"3524.0195"},{"1":"4290.7031"},{"1":"4189.1436"},{"1":"3851.8552"},{"1":"2152.4177"},{"1":"3818.1833"},{"1":"3866.0913"},{"1":"1382.1077"},{"1":"2897.4343"},{"1":"1382.1077"},{"1":"1029.4047"},{"1":"1854.5758"},{"1":"1173.9202"},{"1":"3409.6282"},{"1":"1902.6246"},{"1":"3453.4304"},{"1":"1408.1217"},{"1":"3866.0913"},{"1":"1411.6791"},{"1":"2777.1133"},{"1":"6569.7354"},{"1":"4601.1187"},{"1":"6443.7817"},{"1":"1408.1217"},{"1":"3867.2090"},{"1":"3772.5872"},{"1":"5160.3301"},{"1":"1029.3826"},{"1":"3812.8054"},{"1":"2185.1702"},{"1":"2981.4941"},{"1":"3851.8552"},{"1":"3046.8777"},{"1":"2266.7781"},{"1":"3801.3347"},{"1":"4693.9790"},{"1":"2900.3145"},{"1":"3161.3726"},{"1":"3915.4812"},{"1":"2796.5515"},{"1":"1272.9819"},{"1":"3772.5872"},{"1":"4842.1226"},{"1":"1173.4923"},{"1":"2981.4941"},{"1":"2245.3940"},{"1":"2083.2917"},{"1":"4842.1226"},{"1":"1408.1217"},{"1":"1030.7953"},{"1":"5132.5010"},{"1":"2981.4941"},{"1":"1173.4923"},{"1":"2827.8579"},{"1":"2772.4368"},{"1":"1173.9202"},{"1":"1745.2794"},{"1":"4601.1187"},{"1":"1173.4923"},{"1":"4114.6592"},{"1":"3064.4585"},{"1":"3718.2595"},{"1":"3915.4812"},{"1":"1854.5758"},{"1":"5132.5010"},{"1":"1132.2166"},{"1":"1401.1250"},{"1":"5662.8877"},{"1":"1902.6246"},{"1":"2827.8579"},{"1":"3564.2378"},{"1":"2799.6101"},{"1":"3912.1421"},{"1":"1015.0651"},{"1":"1159.1746"},{"1":"4946.2007"},{"1":"4655.2954"},{"1":"2168.2319"},{"1":"5132.5010"},{"1":"2811.2144"},{"1":"1292.3743"},{"1":"3553.2856"},{"1":"3851.8552"},{"1":"2838.6545"},{"1":"2406.9517"},{"1":"4322.4873"},{"1":"3161.3726"},{"1":"1831.6134"},{"1":"2799.6101"},{"1":"2570.2222"},{"1":"4842.1226"},{"1":"3025.6809"},{"1":"1408.1217"},{"1":"6949.7217"},{"1":"3866.0913"},{"1":"1361.6553"},{"1":"2731.6274"},{"1":"2648.3228"},{"1":"3524.0195"},{"1":"1902.6246"},{"1":"5660.9741"},{"1":"3263.7166"},{"1":"4118.0044"},{"1":"3714.4902"},{"1":"3133.5674"},{"1":"3828.5598"},{"1":"2897.4343"},{"1":"4842.1226"},{"1":"3414.4304"},{"1":"2827.8579"},{"1":"943.1095"},{"1":"2299.7261"},{"1":"2827.8579"},{"1":"3866.0913"},{"1":"3025.6809"},{"1":"3524.0195"},{"1":"4119.1494"},{"1":"3161.3726"},{"1":"1401.1250"},{"1":"1029.3826"},{"1":"4091.5967"},{"1":"2465.1511"},{"1":"6248.0903"},{"1":"1029.4047"},{"1":"3812.8054"},{"1":"3572.2927"},{"1":"2759.8669"},{"1":"2759.8669"},{"1":"4575.4434"},{"1":"3666.9136"},{"1":"1213.5410"},{"1":"4749.7837"},{"1":"4322.4873"},{"1":"2073.8511"},{"1":"2340.8547"},{"1":"2245.3940"},{"1":"1173.4923"},{"1":"2772.4368"},{"1":"1831.6134"},{"1":"3866.0913"},{"1":"1173.4923"},{"1":"2565.3569"},{"1":"3125.0176"},{"1":"3706.4883"},{"1":"1418.8374"},{"1":"1549.9709"},{"1":"3871.9236"},{"1":"1307.3177"},{"1":"3851.8552"},{"1":"4391.1846"},{"1":"4045.3896"},{"1":"4575.4434"},{"1":"3912.1421"},{"1":"2799.6101"},{"1":"1108.4733"},{"1":"1902.6246"},{"1":"2779.6763"},{"1":"1029.3826"},{"1":"2245.3940"},{"1":"2981.4941"},{"1":"2827.8579"},{"1":"6293.3394"},{"1":"2827.8579"},{"1":"5660.9741"},{"1":"6569.7354"},{"1":"1159.1746"},{"1":"1108.4733"},{"1":"6443.7817"},{"1":"3564.2378"},{"1":"1113.7194"},{"1":"1411.6791"},{"1":"5069.9038"},{"1":"2425.4001"},{"1":"1132.2166"},{"1":"958.6671"},{"1":"3409.6282"},{"1":"3818.1833"},{"1":"6839.9204"},{"1":"3161.3726"},{"1":"1408.1217"},{"1":"2152.4177"},{"1":"3263.7166"},{"1":"4815.8623"},{"1":"1408.1217"},{"1":"3915.4812"},{"1":"1567.5029"},{"1":"1401.1250"},{"1":"2777.1133"},{"1":"2152.4177"},{"1":"3932.4861"},{"1":"1458.8665"},{"1":"3146.1074"},{"1":"1173.9202"},{"1":"4189.1436"},{"1":"2152.4177"},{"1":"1902.6246"},{"1":"1226.8989"},{"1":"1902.6246"},{"1":"2601.1733"},{"1":"2648.3228"},{"1":"1272.9819"},{"1":"3263.7166"},{"1":"1226.8989"},{"1":"3866.0913"},{"1":"994.9505"},{"1":"4091.5967"},{"1":"2346.6697"},{"1":"2448.3984"},{"1":"4322.4873"},{"1":"1851.8799"},{"1":"1307.3177"},{"1":"2981.4941"},{"1":"1173.4923"},{"1":"4241.7080"},{"1":"3877.9109"},{"1":"1273.3948"},{"1":"1272.9819"},{"1":"3986.7688"},{"1":"3161.3726"},{"1":"1247.9943"},{"1":"3161.3726"},{"1":"1173.4923"},{"1":"3453.4304"},{"1":"2900.3145"},{"1":"1902.6246"},{"1":"3403.5864"},{"1":"3718.2595"},{"1":"4322.4873"},{"1":"1273.3948"},{"1":"3524.0195"},{"1":"1408.1217"},{"1":"4693.9790"},{"1":"3564.2378"},{"1":"3915.4812"},{"1":"1251.3212"},{"1":"3701.9980"},{"1":"2882.1694"},{"1":"3706.4883"},{"1":"1030.7953"},{"1":"2897.4343"},{"1":"4660.4478"},{"1":"3475.1179"},{"1":"2601.1733"},{"1":"3932.4861"},{"1":"2961.2742"},{"1":"1030.7953"},{"1":"3125.0176"},{"1":"3666.9136"},{"1":"3161.3726"},{"1":"4199.7251"},{"1":"4091.5967"},{"1":"3064.4585"},{"1":"2375.5698"},{"1":"4213.9956"},{"1":"2882.1694"},{"1":"5081.2949"},{"1":"2772.4368"},{"1":"3524.0195"},{"1":"4391.1846"},{"1":"2152.4177"},{"1":"2777.1133"},{"1":"4749.7837"},{"1":"1408.1217"},{"1":"3453.4304"},{"1":"2190.7649"},{"1":"2961.2742"},{"1":"1392.8303"},{"1":"2152.4177"},{"1":"3524.0195"},{"1":"888.5793"},{"1":"3932.4861"},{"1":"2601.6458"},{"1":"6569.7354"},{"1":"3777.0774"},{"1":"1247.9943"},{"1":"1195.3459"},{"1":"2190.7649"},{"1":"2152.4177"},{"1":"994.9505"},{"1":"3994.3550"},{"1":"1458.8665"},{"1":"3867.2090"},{"1":"4213.9956"},{"1":"1132.2166"},{"1":"3025.6809"},{"1":"4391.1846"},{"1":"3932.4861"},{"1":"3866.0913"},{"1":"3586.1458"},{"1":"3001.9363"},{"1":"3812.8054"},{"1":"3851.8552"},{"1":"6569.7354"},{"1":"3409.6282"},{"1":"4326.5864"},{"1":"3572.2927"},{"1":"3932.4861"},{"1":"3851.8552"},{"1":"3572.2927"},{"1":"2900.3145"},{"1":"2598.2195"},{"1":"4114.6592"},{"1":"3666.9136"},{"1":"4322.4873"},{"1":"1029.3826"},{"1":"6443.7817"},{"1":"4337.2871"},{"1":"3871.9236"},{"1":"1851.8799"},{"1":"1299.0845"},{"1":"1247.9943"},{"1":"3564.2378"},{"1":"5662.8877"},{"1":"1458.8665"},{"1":"2759.8669"},{"1":"4213.9956"},{"1":"3871.9236"},{"1":"3871.9236"},{"1":"2486.3772"},{"1":"1226.8989"},{"1":"3866.0913"},{"1":"1113.7194"},{"1":"1113.7194"},{"1":"1401.1250"},{"1":"1029.3826"},{"1":"3146.1074"},{"1":"1029.4047"},{"1":"2299.7261"},{"1":"1902.6246"},{"1":"3321.9375"},{"1":"2152.4177"},{"1":"994.9505"},{"1":"2777.1133"},{"1":"1567.5029"},{"1":"1831.6134"},{"1":"1902.6246"},{"1":"5593.5610"},{"1":"2827.8579"},{"1":"3208.5317"},{"1":"2648.3228"},{"1":"3915.4812"},{"1":"3208.5317"},{"1":"2190.7649"},{"1":"6569.7354"},{"1":"4815.8623"},{"1":"4193.5332"},{"1":"1408.1217"},{"1":"2981.4941"},{"1":"1292.3743"},{"1":"958.6671"},{"1":"1401.1250"},{"1":"5046.7466"},{"1":"1226.8989"},{"1":"2266.7781"},{"1":"2897.4343"},{"1":"2900.3145"},{"1":"3161.3726"},{"1":"2601.1733"},{"1":"2152.4177"},{"1":"2779.6763"},{"1":"1038.1395"},{"1":"4749.7837"},{"1":"3867.2090"},{"1":"3851.8552"},{"1":"1108.4733"},{"1":"3161.3726"},{"1":"2340.8547"},{"1":"6443.7817"},{"1":"1272.9819"},{"1":"2066.8855"},{"1":"6105.5996"},{"1":"1273.3948"},{"1":"3980.4150"},{"1":"6443.7817"},{"1":"2570.2222"},{"1":"1113.7194"},{"1":"2465.1511"},{"1":"3524.0195"},{"1":"1408.1217"},{"1":"1745.2794"},{"1":"2827.8579"},{"1":"1902.6246"},{"1":"2614.5435"},{"1":"3146.1074"},{"1":"1831.6134"},{"1":"3453.4304"},{"1":"4655.2954"},{"1":"2683.2947"},{"1":"3986.7688"},{"1":"1831.6134"},{"1":"4326.5864"},{"1":"2465.1511"},{"1":"1411.6791"},{"1":"1902.6246"},{"1":"2882.1694"},{"1":"3932.4861"},{"1":"6683.0371"},{"1":"1279.9323"},{"1":"1159.1746"},{"1":"2598.2195"},{"1":"3867.2090"},{"1":"3509.2769"},{"1":"2566.4741"},{"1":"2897.4343"},{"1":"1624.0833"},{"1":"2083.2917"},{"1":"5132.5010"},{"1":"3932.4861"},{"1":"3801.3347"},{"1":"1458.8665"},{"1":"1401.1250"},{"1":"5069.9038"},{"1":"4337.2871"},{"1":"2152.4177"},{"1":"5112.7349"},{"1":"6949.7217"},{"1":"3251.0618"},{"1":"3161.3726"},{"1":"1015.0651"},{"1":"2897.4343"},{"1":"3866.0913"},{"1":"3125.0176"},{"1":"6293.3394"},{"1":"4213.9956"},{"1":"3564.2378"},{"1":"4965.4146"},{"1":"2425.4001"},{"1":"3893.4590"},{"1":"2570.2222"},{"1":"2152.4177"},{"1":"4660.4478"},{"1":"1831.6134"},{"1":"2185.1702"},{"1":"1398.5994"},{"1":"3524.0195"},{"1":"4660.4478"},{"1":"3666.9136"},{"1":"3564.2378"},{"1":"1272.9819"},{"1":"1029.4047"},{"1":"2897.4343"},{"1":"3284.5498"},{"1":"3125.0176"},{"1":"3564.2378"},{"1":"3772.5872"},{"1":"3817.2957"},{"1":"4337.2871"},{"1":"2685.5547"},{"1":"2900.3145"},{"1":"5662.8877"},{"1":"2652.9558"},{"1":"3064.4585"},{"1":"2425.4001"},{"1":"2648.3228"},{"1":"3812.8054"},{"1":"923.0335"},{"1":"7177.2427"},{"1":"3409.6282"},{"1":"3867.2090"},{"1":"2938.6125"},{"1":"1745.2794"},{"1":"3572.2927"},{"1":"2406.9517"},{"1":"3867.2090"},{"1":"3125.0176"},{"1":"2779.6763"},{"1":"4189.1436"},{"1":"6949.7217"},{"1":"3866.0913"},{"1":"4213.9956"},{"1":"2827.8579"},{"1":"4842.1226"},{"1":"2601.1733"},{"1":"2799.6101"},{"1":"2671.0793"},{"1":"4026.0540"},{"1":"3818.1833"},{"1":"3801.3347"},{"1":"4322.4873"},{"1":"4601.1187"},{"1":"3572.2927"},{"1":"1173.9202"},{"1":"3409.6282"},{"1":"4189.1436"},{"1":"3161.3726"},{"1":"1038.1395"},{"1":"5322.2754"},{"1":"1030.7953"},{"1":"3866.0913"},{"1":"3161.3726"},{"1":"3409.6282"},{"1":"3714.4902"},{"1":"3980.4150"},{"1":"6215.4009"},{"1":"1487.7117"},{"1":"6443.7817"},{"1":"1247.9943"},{"1":"1567.5029"},{"1":"1851.8799"},{"1":"2152.4177"},{"1":"2552.7947"},{"1":"2152.4177"},{"1":"7236.4829"},{"1":"4601.1187"},{"1":"4045.3896"},{"1":"1030.7953"},{"1":"6949.7217"},{"1":"2190.7649"},{"1":"1667.1677"},{"1":"1173.4923"},{"1":"4193.5332"},{"1":"3025.6809"},{"1":"1307.3177"},{"1":"5112.7349"},{"1":"5973.1074"},{"1":"1029.4047"},{"1":"6949.7217"},{"1":"3866.0913"},{"1":"2827.8579"},{"1":"6215.4009"},{"1":"4842.1226"},{"1":"4213.9956"},{"1":"7236.4829"},{"1":"1745.2794"},{"1":"3553.2856"},{"1":"3025.6809"},{"1":"1029.3826"},{"1":"2759.8669"},{"1":"3701.9980"},{"1":"4815.8623"},{"1":"956.7087"},{"1":"4310.1396"},{"1":"3912.1421"},{"1":"1904.5042"},{"1":"2434.9634"},{"1":"3572.2927"},{"1":"2375.5698"},{"1":"4310.1396"},{"1":"2900.3145"},{"1":"2434.9634"},{"1":"1567.5029"},{"1":"888.5793"},{"1":"3409.6282"},{"1":"3867.2090"},{"1":"1272.9819"},{"1":"2083.2917"},{"1":"3553.2856"},{"1":"1382.1077"},{"1":"2245.3940"},{"1":"2448.3984"},{"1":"1361.6553"},{"1":"2779.6763"},{"1":"2897.4343"},{"1":"3564.2378"},{"1":"1408.1217"},{"1":"6237.8877"},{"1":"2570.2222"},{"1":"2981.4941"},{"1":"5069.9038"},{"1":"1247.9943"},{"1":"1173.4923"},{"1":"1831.6134"},{"1":"3015.9265"},{"1":"1831.6134"},{"1":"3572.2927"},{"1":"3932.4861"},{"1":"4199.7251"},{"1":"2103.6816"},{"1":"4842.1226"},{"1":"1401.1250"},{"1":"1487.7117"},{"1":"3524.0195"},{"1":"4984.3574"},{"1":"6248.0903"},{"1":"3161.3726"},{"1":"4213.9956"},{"1":"3321.9375"},{"1":"3161.3726"},{"1":"4213.9956"},{"1":"2981.4941"},{"1":"3453.4304"},{"1":"3453.4304"},{"1":"2838.6545"},{"1":"1882.2335"},{"1":"4026.0540"},{"1":"3524.0195"},{"1":"3001.9363"},{"1":"2566.9763"},{"1":"1831.6134"},{"1":"3564.2378"},{"1":"3553.2856"},{"1":"2598.2195"},{"1":"1487.7117"},{"1":"3146.1074"},{"1":"2897.4343"},{"1":"3572.2927"},{"1":"3161.3726"},{"1":"4727.8315"},{"1":"994.9505"},{"1":"1173.4923"},{"1":"1401.8278"},{"1":"3706.4883"},{"1":"4310.1396"},{"1":"1854.5758"},{"1":"1831.6134"},{"1":"1195.3459"},{"1":"2772.4368"},{"1":"3064.4585"},{"1":"4322.4873"},{"1":"3666.9136"},{"1":"3161.3726"},{"1":"4601.1187"},{"1":"1018.4766"},{"1":"3161.3726"},{"1":"2897.4343"},{"1":"4290.7031"},{"1":"1902.6246"},{"1":"5662.8877"},{"1":"1487.7117"},{"1":"3714.4902"},{"1":"2425.4001"},{"1":"4119.1494"},{"1":"1029.3826"},{"1":"1292.3743"},{"1":"2772.4368"},{"1":"2152.4177"},{"1":"1918.9207"},{"1":"4310.1396"},{"1":"3161.3726"},{"1":"3509.2769"},{"1":"5081.2949"},{"1":"3777.0774"},{"1":"6248.0903"},{"1":"994.9505"},{"1":"1361.6553"},{"1":"6683.0371"},{"1":"6569.7354"},{"1":"6975.5532"},{"1":"3986.7688"},{"1":"2434.9634"},{"1":"5452.9170"},{"1":"4045.3896"},{"1":"1504.8254"},{"1":"3161.3726"},{"1":"2897.4343"},{"1":"3453.4304"},{"1":"3867.2090"},{"1":"3714.4902"},{"1":"1854.5758"},{"1":"3866.0913"},{"1":"3161.3726"},{"1":"6293.3394"},{"1":"3564.2378"},{"1":"2648.3228"},{"1":"1902.6246"},{"1":"4114.6592"},{"1":"2811.2144"},{"1":"3701.9980"},{"1":"1549.9709"},{"1":"3866.0913"},{"1":"3409.6282"},{"1":"5180.8682"},{"1":"3125.0176"},{"1":"2425.4001"},{"1":"1016.4777"},{"1":"1408.1217"},{"1":"3161.3726"},{"1":"3161.3726"},{"1":"4119.1494"},{"1":"3714.4902"},{"1":"3912.1421"},{"1":"3524.0195"},{"1":"3161.3726"},{"1":"3161.3726"},{"1":"3161.3726"},{"1":"3509.2769"},{"1":"1831.6134"},{"1":"3818.1833"},{"1":"3564.2378"},{"1":"3263.7166"},{"1":"3564.2378"},{"1":"4322.4873"},{"1":"1401.1250"},{"1":"1408.1217"},{"1":"1902.6246"},{"1":"2777.1133"},{"1":"3161.3726"},{"1":"3161.3726"},{"1":"1902.6246"},{"1":"3564.2378"},{"1":"3321.9375"},{"1":"2897.4343"},{"1":"2838.6545"},{"1":"3178.7339"},{"1":"3867.2090"},{"1":"2465.1511"},{"1":"1108.4733"},{"1":"994.9505"},{"1":"1030.7953"},{"1":"3772.5872"},{"1":"5069.9038"},{"1":"3714.4902"},{"1":"923.0335"},{"1":"1272.9819"},{"1":"2897.4343"},{"1":"3161.3726"},{"1":"2882.1694"},{"1":"3409.6282"},{"1":"3146.1074"},{"1":"4391.1846"},{"1":"3980.4150"},{"1":"4601.1187"},{"1":"2961.2742"},{"1":"2648.3228"},{"1":"3818.1833"},{"1":"3524.0195"},{"1":"4326.5864"},{"1":"3772.5872"},{"1":"1549.9709"},{"1":"3524.0195"},{"1":"1029.4047"},{"1":"1831.6134"},{"1":"990.4913"},{"1":"3553.2856"},{"1":"3453.4304"},{"1":"1272.9819"},{"1":"977.2006"},{"1":"5662.8877"},{"1":"3001.9363"},{"1":"2811.2144"},{"1":"3414.4304"},{"1":"5863.3062"},{"1":"5180.8682"},{"1":"1273.3948"},{"1":"2777.1133"},{"1":"1422.4017"},{"1":"1401.1250"},{"1":"1567.5029"},{"1":"2185.1702"},{"1":"1272.9819"},{"1":"1366.4543"},{"1":"2152.4177"},{"1":"2900.3145"},{"1":"4322.4873"},{"1":"3851.8552"},{"1":"2601.1733"},{"1":"3161.3726"},{"1":"6248.0903"},{"1":"1016.4777"},{"1":"1854.5758"},{"1":"3064.4585"},{"1":"3871.9236"},{"1":"2152.4177"},{"1":"2185.1702"},{"1":"3125.0176"},{"1":"1215.1959"},{"1":"3475.1179"},{"1":"5662.8877"},{"1":"3866.0913"},{"1":"1745.2794"},{"1":"2961.2742"},{"1":"3553.2856"},{"1":"3033.1218"},{"1":"3125.0176"},{"1":"6569.7354"},{"1":"2838.6545"},{"1":"6105.5996"},{"1":"4189.1436"},{"1":"4322.4873"},{"1":"3161.3726"},{"1":"2882.1694"},{"1":"2152.4177"},{"1":"3403.5864"},{"1":"3912.1421"},{"1":"993.4946"},{"1":"958.6671"},{"1":"3524.0195"},{"1":"3161.3726"},{"1":"1567.5029"},{"1":"5303.0664"},{"1":"3994.3550"},{"1":"1408.1217"},{"1":"1854.5758"},{"1":"4965.4146"},{"1":"2565.3569"},{"1":"3161.3726"},{"1":"5593.5610"},{"1":"3161.3726"},{"1":"3851.8552"},{"1":"958.6671"},{"1":"4322.4873"},{"1":"3161.3726"},{"1":"2796.5515"},{"1":"6443.7817"},{"1":"3125.0176"},{"1":"2434.9634"},{"1":"4601.1187"},{"1":"1831.6134"},{"1":"3321.9375"},{"1":"1366.4543"},{"1":"3208.5317"},{"1":"3586.1458"},{"1":"1307.3177"},{"1":"4601.1187"},{"1":"958.6671"},{"1":"2340.8547"},{"1":"4322.4873"},{"1":"1411.6791"},{"1":"4727.8315"},{"1":"2648.3228"},{"1":"1038.1395"},{"1":"3812.8054"},{"1":"2647.3625"},{"1":"5046.7466"},{"1":"2406.9517"},{"1":"1030.7953"},{"1":"2799.6101"},{"1":"2465.1511"},{"1":"6248.0903"},{"1":"1272.9819"},{"1":"3161.3726"},{"1":"3025.6809"},{"1":"2570.2222"},{"1":"3156.1235"},{"1":"1598.9473"},{"1":"3723.0083"},{"1":"3403.5864"},{"1":"2425.4001"},{"1":"6443.7817"},{"1":"2779.6763"},{"1":"5069.9038"},{"1":"3564.2378"},{"1":"2811.2144"},{"1":"1307.3177"},{"1":"3572.2927"},{"1":"3321.9375"},{"1":"1272.9819"},{"1":"4410.5298"},{"1":"3409.6282"},{"1":"1902.6246"},{"1":"3161.3726"},{"1":"2448.3984"},{"1":"3867.2090"},{"1":"1458.8665"},{"1":"3524.0195"},{"1":"4749.7837"},{"1":"3161.3726"},{"1":"2897.4343"},{"1":"1012.6860"},{"1":"4290.7031"},{"1":"1111.0642"},{"1":"3263.7166"},{"1":"2601.1733"},{"1":"2717.6416"},{"1":"3509.2769"},{"1":"2647.3625"},{"1":"3161.3726"},{"1":"4026.0540"},{"1":"1624.0833"},{"1":"6443.7817"},{"1":"2799.6101"},{"1":"2152.4177"},{"1":"1382.1077"},{"1":"2779.6763"},{"1":"4026.0540"},{"1":"1851.8799"},{"1":"1272.9819"},{"1":"2652.9558"},{"1":"3572.2927"},{"1":"3553.2856"},{"1":"1487.7117"},{"1":"1408.1217"},{"1":"2811.2144"},{"1":"4310.1396"},{"1":"1458.8665"},{"1":"2868.5808"},{"1":"3818.1833"},{"1":"1030.7953"},{"1":"4091.5967"},{"1":"2185.1702"},{"1":"3251.0618"},{"1":"4290.7031"},{"1":"4223.8008"},{"1":"2152.4177"},{"1":"2900.3145"},{"1":"1272.9819"},{"1":"1401.1250"},{"1":"2152.4177"},{"1":"1272.9819"},{"1":"2772.4368"},{"1":"2448.3984"},{"1":"3127.2434"},{"1":"1535.4272"},{"1":"4965.4146"},{"1":"3027.5989"},{"1":"2152.4177"},{"1":"3871.9236"},{"1":"2900.3145"},{"1":"2185.1702"},{"1":"4660.4478"},{"1":"3867.2090"},{"1":"3146.1074"},{"1":"1902.6246"},{"1":"3714.4902"},{"1":"2779.6763"},{"1":"1307.3177"},{"1":"2152.4177"},{"1":"2900.3145"},{"1":"4749.7837"},{"1":"2152.4177"},{"1":"3701.9980"},{"1":"3453.4304"},{"1":"1159.1746"},{"1":"5046.7466"},{"1":"2152.4177"},{"1":"3001.9363"},{"1":"1368.1927"},{"1":"2648.3228"},{"1":"1279.9323"},{"1":"3714.4902"},{"1":"3025.6809"},{"1":"2598.2195"},{"1":"6949.7217"},{"1":"6443.7817"},{"1":"3524.0195"},{"1":"1038.1395"},{"1":"2799.6101"},{"1":"1159.1746"},{"1":"1173.9202"},{"1":"6569.7354"},{"1":"3812.8054"},{"1":"3453.4304"},{"1":"1831.6134"},{"1":"3666.9136"},{"1":"2683.2947"},{"1":"6343.1353"},{"1":"2406.9517"},{"1":"2647.3625"},{"1":"3161.3726"},{"1":"3161.3726"},{"1":"2685.5547"},{"1":"6248.0903"},{"1":"1745.2794"},{"1":"2584.2673"},{"1":"4660.4478"},{"1":"2897.4343"},{"1":"2465.1511"},{"1":"2074.1101"},{"1":"3125.0176"},{"1":"2152.4177"},{"1":"1030.7953"},{"1":"3524.0195"},{"1":"4575.4434"},{"1":"1831.6134"},{"1":"1851.8799"},{"1":"2152.4177"},{"1":"2465.1511"},{"1":"2779.6763"},{"1":"2811.2144"},{"1":"2190.7649"},{"1":"1902.6246"},{"1":"3666.9136"},{"1":"3932.4861"},{"1":"2811.2144"},{"1":"3666.9136"},{"1":"2434.9634"},{"1":"1535.4272"},{"1":"3409.6282"},{"1":"3161.3726"},{"1":"1567.5029"},{"1":"3994.3550"},{"1":"3263.7166"},{"1":"2796.5515"},{"1":"1015.0651"},{"1":"5069.9038"},{"1":"4213.9956"},{"1":"4193.5332"},{"1":"4322.4873"},{"1":"1902.6246"},{"1":"2827.8579"},{"1":"3811.6370"},{"1":"5918.9375"},{"1":"1408.1217"},{"1":"4803.1260"},{"1":"1279.9323"},{"1":"3932.4861"},{"1":"4189.1436"},{"1":"3564.2378"},{"1":"2882.1694"},{"1":"3001.9363"},{"1":"1173.4923"},{"1":"1030.7953"},{"1":"1854.5758"},{"1":"5972.9531"},{"1":"3453.4304"},{"1":"2671.0793"},{"1":"2190.7649"},{"1":"1902.6246"},{"1":"3912.1421"},{"1":"4601.1187"},{"1":"3161.3726"},{"1":"3403.5864"},{"1":"3409.6282"},{"1":"994.9505"},{"1":"2340.8547"},{"1":"6215.4009"},{"1":"2434.9634"},{"1":"3666.9136"},{"1":"1030.7953"},{"1":"1745.2794"},{"1":"3714.4902"},{"1":"2772.4368"},{"1":"2601.1733"},{"1":"1831.6134"},{"1":"2779.6763"},{"1":"2486.3772"},{"1":"3251.0618"},{"1":"2185.1702"},{"1":"3994.3550"},{"1":"1029.3826"},{"1":"3161.3726"},{"1":"2717.6416"},{"1":"1195.3459"},{"1":"3994.3550"},{"1":"4259.0464"},{"1":"5662.8877"},{"1":"3867.2090"},{"1":"1408.1217"},{"1":"3125.0176"},{"1":"3011.4998"},{"1":"2566.4741"},{"1":"4326.5864"},{"1":"2799.6101"},{"1":"6343.1353"},{"1":"5160.3301"},{"1":"2601.1733"},{"1":"1408.1217"},{"1":"6215.4009"},{"1":"4391.1846"},{"1":"3871.9236"},{"1":"4114.6592"},{"1":"993.4946"},{"1":"5132.5010"},{"1":"3932.4861"},{"1":"4310.1396"},{"1":"2152.4177"},{"1":"2346.6697"},{"1":"2652.9558"},{"1":"3161.3726"},{"1":"3553.2856"},{"1":"1408.1217"},{"1":"3524.0195"},{"1":"1401.1250"},{"1":"2717.6416"},{"1":"2922.3840"},{"1":"5973.1074"},{"1":"1831.6134"},{"1":"3524.0195"},{"1":"2083.2917"},{"1":"3564.2378"},{"1":"5973.1074"},{"1":"4322.4873"},{"1":"977.2006"},{"1":"2190.7649"},{"1":"1567.5029"},{"1":"3553.2856"},{"1":"3161.3726"},{"1":"3867.2090"},{"1":"1408.1217"},{"1":"4660.4478"},{"1":"2811.2144"},{"1":"2601.1733"},{"1":"1030.7953"},{"1":"2152.4177"},{"1":"2152.4177"},{"1":"1487.7117"},{"1":"1029.3826"},{"1":"1667.1677"},{"1":"3403.5864"},{"1":"1408.1217"},{"1":"2486.3772"},{"1":"6443.7817"},{"1":"1422.4017"},{"1":"3263.7166"},{"1":"1247.9943"},{"1":"4322.4873"},{"1":"3714.4902"},{"1":"888.5793"},{"1":"4310.1396"},{"1":"3509.2769"},{"1":"1408.1217"},{"1":"2717.6416"},{"1":"2811.2144"},{"1":"2838.6545"},{"1":"3564.2378"},{"1":"1408.1217"},{"1":"1567.5029"},{"1":"2811.2144"},{"1":"2897.4343"},{"1":"4410.5298"},{"1":"1615.0172"},{"1":"6248.0903"},{"1":"1038.1395"},{"1":"4114.6592"},{"1":"6248.0903"},{"1":"2465.1511"},{"1":"2882.1694"},{"1":"3912.1421"},{"1":"1272.9819"},{"1":"3666.9136"},{"1":"2571.3069"},{"1":"1411.6791"},{"1":"2900.3145"},{"1":"3025.6809"},{"1":"5973.1074"},{"1":"2759.8669"},{"1":"3524.0195"},{"1":"5160.3301"},{"1":"3161.3726"},{"1":"6683.0371"},{"1":"3125.0176"},{"1":"3812.8054"},{"1":"1108.4733"},{"1":"2425.4001"},{"1":"4749.7837"},{"1":"5322.2754"},{"1":"3714.4902"},{"1":"6105.5996"},{"1":"4749.7837"},{"1":"3998.5657"},{"1":"3161.3726"},{"1":"2245.3940"},{"1":"3701.9980"},{"1":"4749.7837"},{"1":"2448.3984"},{"1":"923.0335"},{"1":"2570.2222"},{"1":"1408.1217"},{"1":"1549.9709"},{"1":"1215.1959"},{"1":"1038.1395"},{"1":"3025.6809"},{"1":"3866.0913"},{"1":"3453.4304"},{"1":"2152.4177"},{"1":"3027.5989"},{"1":"7236.4829"},{"1":"5973.1074"},{"1":"1272.9819"},{"1":"2340.8547"},{"1":"3524.0195"},{"1":"3125.0176"},{"1":"1029.3826"},{"1":"7236.4829"},{"1":"3871.9236"},{"1":"2340.8547"},{"1":"5918.9375"},{"1":"4815.8623"},{"1":"1307.3177"},{"1":"3025.6809"},{"1":"4601.1187"},{"1":"2777.1133"},{"1":"2772.4368"},{"1":"2598.2195"},{"1":"4322.4873"},{"1":"2434.9634"},{"1":"1401.1250"},{"1":"2772.4368"},{"1":"3001.9363"},{"1":"2152.4177"},{"1":"3714.4902"},{"1":"2981.4941"},{"1":"1215.1959"},{"1":"3156.1235"},{"1":"2152.4177"},{"1":"2465.1511"},{"1":"958.6671"},{"1":"3125.0176"},{"1":"2827.8579"},{"1":"1029.3826"},{"1":"3509.2769"},{"1":"958.6671"},{"1":"4749.7837"},{"1":"5160.3301"},{"1":"4193.5332"},{"1":"1851.8799"},{"1":"3453.4304"},{"1":"3453.4304"},{"1":"1401.1250"},{"1":"1421.6298"},{"1":"3932.4861"},{"1":"2598.2195"},{"1":"2190.7649"},{"1":"2897.4343"},{"1":"2601.1733"},{"1":"3553.2856"},{"1":"3251.0618"},{"1":"2465.1511"},{"1":"1902.6246"},{"1":"3178.7339"},{"1":"3564.2378"},{"1":"4241.7080"},{"1":"1854.5758"},{"1":"1035.2859"},{"1":"3509.2769"},{"1":"3208.5317"},{"1":"2772.4368"},{"1":"1273.3948"},{"1":"3817.2957"},{"1":"4946.2007"},{"1":"1408.1217"},{"1":"3851.8552"},{"1":"2717.6416"},{"1":"1408.1217"},{"1":"3524.0195"},{"1":"3772.5872"},{"1":"3817.2957"},{"1":"1038.1395"},{"1":"3125.0176"},{"1":"3932.4861"},{"1":"4699.1460"},{"1":"3161.3726"},{"1":"1401.1250"},{"1":"4815.8623"},{"1":"3161.3726"},{"1":"3867.2090"},{"1":"3208.5317"},{"1":"1272.9819"},{"1":"2185.1702"},{"1":"1272.9819"},{"1":"2777.1133"},{"1":"3564.2378"},{"1":"4391.1846"},{"1":"3453.4304"},{"1":"3409.6282"},{"1":"1401.1250"},{"1":"3025.6809"},{"1":"4045.3896"},{"1":"1902.6246"},{"1":"2465.1511"},{"1":"6443.7817"},{"1":"4026.0540"},{"1":"3181.8691"},{"1":"4601.1187"},{"1":"3524.0195"},{"1":"1108.4733"},{"1":"2981.4941"},{"1":"4601.1187"},{"1":"1987.4307"},{"1":"3524.0195"},{"1":"4660.4478"},{"1":"3453.4304"},{"1":"1173.4923"},{"1":"2759.8669"},{"1":"1902.6246"},{"1":"2648.3228"},{"1":"2717.6416"},{"1":"923.0335"},{"1":"2340.8547"},{"1":"2827.8579"},{"1":"2648.3228"},{"1":"3161.3726"},{"1":"3772.5872"},{"1":"2566.4741"},{"1":"2827.8579"},{"1":"994.9505"},{"1":"3161.3726"},{"1":"3453.4304"},{"1":"3403.5864"},{"1":"1173.9202"},{"1":"6443.7817"},{"1":"4259.0464"},{"1":"1159.1746"},{"1":"2465.1511"},{"1":"4053.0686"},{"1":"3524.0195"},{"1":"1961.2478"},{"1":"3866.0913"},{"1":"1458.8665"},{"1":"1038.1395"},{"1":"2190.7649"},{"1":"3509.2769"},{"1":"2152.4177"},{"1":"3524.0195"},{"1":"1527.4369"},{"1":"994.9505"},{"1":"2190.7649"},{"1":"2601.1733"},{"1":"2245.3940"},{"1":"3025.6809"},{"1":"2685.5547"},{"1":"3932.4861"},{"1":"6949.7217"},{"1":"3263.7166"},{"1":"1408.1217"},{"1":"6082.7544"},{"1":"1029.4047"},{"1":"2486.3772"},{"1":"4322.4873"},{"1":"2601.1733"},{"1":"3553.2856"},{"1":"4410.5298"},{"1":"1458.8665"},{"1":"3453.4304"},{"1":"2938.6125"},{"1":"1038.1395"},{"1":"5069.9038"},{"1":"3251.0618"},{"1":"4119.1494"},{"1":"3553.2856"},{"1":"3932.4861"},{"1":"2190.7649"},{"1":"2772.4368"},{"1":"3161.3726"},{"1":"958.6671"},{"1":"1173.9202"},{"1":"2465.1511"},{"1":"2827.8579"},{"1":"3125.0176"},{"1":"4189.1436"},{"1":"2299.7261"},{"1":"3994.3550"},{"1":"1851.8799"},{"1":"2152.4177"},{"1":"4053.0686"},{"1":"2772.4368"},{"1":"5132.5010"},{"1":"1113.7194"},{"1":"3666.9136"},{"1":"3915.4812"},{"1":"994.9505"},{"1":"3125.0176"},{"1":"2406.9517"},{"1":"3321.9375"},{"1":"6443.7817"},{"1":"3801.3347"},{"1":"3161.3726"},{"1":"5593.5610"},{"1":"4388.8398"},{"1":"4815.8623"},{"1":"5593.5610"},{"1":"2570.2222"},{"1":"5160.3301"},{"1":"3871.9236"},{"1":"2777.1133"},{"1":"2777.1133"},{"1":"2708.6650"},{"1":"1408.1217"},{"1":"1831.6134"},{"1":"3817.2957"},{"1":"4290.7031"},{"1":"1411.6791"},{"1":"1851.8799"},{"1":"3932.4861"},{"1":"5046.7466"},{"1":"4326.5864"},{"1":"3912.1421"},{"1":"3310.9976"},{"1":"4213.9956"},{"1":"6443.7817"},{"1":"2340.8547"},{"1":"1226.8989"},{"1":"2406.9517"},{"1":"4213.9956"},{"1":"2152.4177"},{"1":"5973.1074"},{"1":"3866.0913"},{"1":"3161.3726"},{"1":"3181.8691"},{"1":"3453.4304"},{"1":"2897.4343"},{"1":"3932.4861"},{"1":"2900.3145"},{"1":"5112.7349"},{"1":"2922.3840"},{"1":"3524.0195"},{"1":"2448.3984"},{"1":"3015.9265"},{"1":"1108.4733"},{"1":"2152.4177"},{"1":"1408.1217"},{"1":"4213.9956"},{"1":"2425.4001"},{"1":"6975.5532"},{"1":"2897.4343"},{"1":"3932.4861"},{"1":"3453.4304"},{"1":"2152.4177"},{"1":"2683.2947"},{"1":"1549.9709"},{"1":"3161.3726"},{"1":"4601.1187"},{"1":"6569.7354"},{"1":"3161.3726"},{"1":"2580.2527"},{"1":"4259.0464"},{"1":"5973.1074"},{"1":"4655.2954"},{"1":"1408.1217"},{"1":"2598.2195"},{"1":"3801.3347"},{"1":"994.9505"},{"1":"2685.5547"},{"1":"3453.4304"},{"1":"3524.0195"},{"1":"4749.7837"},{"1":"3871.9236"},{"1":"1401.1250"},{"1":"3564.2378"},{"1":"3524.0195"},{"1":"1831.6134"},{"1":"6443.7817"},{"1":"2811.2144"},{"1":"2168.2319"},{"1":"1831.6134"},{"1":"3181.8691"},{"1":"3025.6809"},{"1":"2299.7261"},{"1":"2772.4368"},{"1":"3851.8552"},{"1":"6082.7544"},{"1":"1392.8303"},{"1":"4391.1846"},{"1":"4259.0464"},{"1":"6569.7354"},{"1":"2486.3772"},{"1":"993.4946"},{"1":"3723.0083"},{"1":"3572.2927"},{"1":"3772.5872"},{"1":"2494.7393"},{"1":"6975.5532"},{"1":"2827.8579"},{"1":"3867.2090"},{"1":"4842.1226"},{"1":"1411.6791"},{"1":"1745.2794"},{"1":"3572.2927"},{"1":"3161.3726"},{"1":"3777.0298"},{"1":"1173.4923"},{"1":"6975.5532"},{"1":"3980.4150"},{"1":"3227.8159"},{"1":"2614.5435"},{"1":"1195.3459"},{"1":"1745.2794"},{"1":"4749.7837"},{"1":"3851.8552"},{"1":"2425.4001"},{"1":"3524.0195"},{"1":"1029.4047"},{"1":"3817.2957"},{"1":"1851.8799"},{"1":"2648.3228"},{"1":"3866.0913"},{"1":"5303.0664"},{"1":"5160.3301"},{"1":"3968.0676"},{"1":"1215.1959"},{"1":"1215.1959"},{"1":"4965.4146"},{"1":"3564.2378"},{"1":"1401.1250"},{"1":"1831.6134"},{"1":"6105.5996"},{"1":"3932.4861"},{"1":"3817.2957"},{"1":"3871.9236"},{"1":"3871.9236"},{"1":"1132.2166"},{"1":"3509.2769"},{"1":"1458.8665"},{"1":"3866.0913"},{"1":"1173.9202"},{"1":"2648.3228"},{"1":"3309.4648"},{"1":"1029.3826"},{"1":"6082.7544"},{"1":"4842.1226"},{"1":"1902.6246"},{"1":"6569.7354"},{"1":"1368.1927"},{"1":"3553.2856"},{"1":"1408.1217"},{"1":"2425.4001"},{"1":"1745.2794"},{"1":"4045.3896"},{"1":"3524.0195"},{"1":"3666.9136"},{"1":"958.6671"},{"1":"4310.1396"},{"1":"4213.9956"},{"1":"4601.1187"},{"1":"2671.0793"},{"1":"6443.7817"},{"1":"2566.4741"},{"1":"4322.4873"},{"1":"3161.3726"},{"1":"1408.1217"},{"1":"3777.0774"},{"1":"2598.2195"},{"1":"3178.7339"},{"1":"1831.6134"},{"1":"1307.3177"},{"1":"2811.2144"},{"1":"2152.4177"},{"1":"1299.0845"},{"1":"2434.9634"},{"1":"1458.8665"},{"1":"5662.8877"},{"1":"3161.3726"},{"1":"2882.1694"},{"1":"2365.9905"},{"1":"1902.6246"},{"1":"2152.4177"},{"1":"3932.4861"},{"1":"2190.7649"},{"1":"3263.7166"},{"1":"2152.4177"},{"1":"3409.6282"},{"1":"4984.3574"},{"1":"1831.6134"},{"1":"2486.3772"},{"1":"4213.9956"},{"1":"852.2960"},{"1":"1273.3948"},{"1":"3064.4585"},{"1":"6949.7217"},{"1":"1902.6246"},{"1":"6975.5532"},{"1":"6569.7354"},{"1":"3509.2769"},{"1":"3064.4585"},{"1":"3146.1074"},{"1":"2425.4001"},{"1":"2772.4368"},{"1":"1902.6246"},{"1":"3867.2090"},{"1":"3867.2090"},{"1":"3866.0913"},{"1":"3509.2769"},{"1":"993.4946"},{"1":"1307.3177"},{"1":"1382.1077"},{"1":"2777.1133"},{"1":"2190.7649"},{"1":"1173.4923"},{"1":"3509.2769"},{"1":"994.9505"},{"1":"4193.5332"},{"1":"3867.2090"},{"1":"4660.4478"},{"1":"1411.6791"},{"1":"2584.2673"},{"1":"4693.9790"},{"1":"3239.4829"},{"1":"3564.2378"},{"1":"6248.0903"},{"1":"2717.6416"},{"1":"1831.6134"},{"1":"3867.2090"},{"1":"5973.1074"},{"1":"2566.4741"},{"1":"6443.7817"},{"1":"4815.8623"},{"1":"2434.9634"},{"1":"2981.4941"},{"1":"3403.5864"},{"1":"3125.0176"},{"1":"3161.3726"},{"1":"2152.4177"},{"1":"2598.2195"},{"1":"6443.7817"},{"1":"4290.7031"},{"1":"2152.4177"},{"1":"1567.5029"},{"1":"2648.3228"},{"1":"2566.9763"},{"1":"2083.2917"},{"1":"2717.6416"},{"1":"4322.4873"},{"1":"3409.6282"},{"1":"3161.3726"},{"1":"3125.0176"},{"1":"1038.1395"},{"1":"3453.4304"},{"1":"5180.8682"},{"1":"3509.2769"},{"1":"6443.7817"},{"1":"1745.2794"},{"1":"3867.2090"},{"1":"3801.3347"},{"1":"1549.9709"},{"1":"3777.0774"},{"1":"4410.5298"},{"1":"3157.9690"},{"1":"3161.3726"},{"1":"1408.1217"},{"1":"1272.9819"},{"1":"3524.0195"},{"1":"1132.2166"},{"1":"1858.5720"},{"1":"2759.8669"},{"1":"2190.7649"},{"1":"4749.7837"},{"1":"1902.6246"},{"1":"4946.2007"},{"1":"3564.2378"},{"1":"6215.4009"},{"1":"3812.8054"},{"1":"2152.4177"},{"1":"5160.3301"},{"1":"3127.2434"},{"1":"2897.4343"},{"1":"2190.7649"},{"1":"3772.5872"},{"1":"3453.4304"},{"1":"3161.3726"},{"1":"1173.4923"},{"1":"3871.9236"},{"1":"3851.8552"},{"1":"3666.9136"},{"1":"2152.4177"},{"1":"4322.4873"},{"1":"958.6671"},{"1":"6082.7544"},{"1":"3161.3726"},{"1":"3453.4304"},{"1":"7236.4829"},{"1":"1030.7953"},{"1":"2777.1133"},{"1":"1567.5029"},{"1":"3564.2378"},{"1":"6105.5996"},{"1":"1458.8665"},{"1":"3046.8777"},{"1":"3125.0176"},{"1":"2811.2144"},{"1":"2647.3625"},{"1":"6443.7817"},{"1":"1408.1217"},{"1":"2486.3772"},{"1":"2337.7893"},{"1":"4241.7080"},{"1":"1307.3177"},{"1":"1272.9819"},{"1":"3866.0913"},{"1":"2083.2917"},{"1":"3812.8054"},{"1":"1567.5029"},{"1":"3409.6282"},{"1":"1831.6134"},{"1":"4193.5332"},{"1":"3772.5872"},{"1":"3161.3726"},{"1":"958.6671"},{"1":"3772.5872"},{"1":"1831.6134"},{"1":"3912.1421"},{"1":"6248.0903"},{"1":"1851.8799"},{"1":"1408.1217"},{"1":"6569.7354"},{"1":"2811.2144"},{"1":"3125.0176"},{"1":"3453.4304"},{"1":"1272.9819"},{"1":"3386.9680"},{"1":"4749.7837"},{"1":"2465.1511"},{"1":"1902.6246"},{"1":"2425.4001"},{"1":"1745.2794"},{"1":"4322.4873"},{"1":"2799.6101"},{"1":"1195.3459"},{"1":"3453.4304"},{"1":"1356.2378"},{"1":"2465.1511"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+
+
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'alternate';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
