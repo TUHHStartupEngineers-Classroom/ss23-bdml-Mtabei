@@ -9,7 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Loading libraries
+# Loading the training & test dataset
+
 ```{r}
 library(h2o)
 library(tidyverse)
@@ -60,13 +61,14 @@ valid_h2o <- split_h2o[[2]]
 test_h2o  <- as.h2o(test_tbl)
 ```
 
-# Setting target and predictors
+# Specifing the response and predictor variables
 ```{r}
 y <- "went_on_backorder"
 x <- setdiff(names(train_h2o), y)
 ```
 
 
+# Running AutoML specifying the stopping criterion
 ```{r}
 automl_models_h2o <- h2o.automl(
   x = x,
@@ -78,7 +80,7 @@ automl_models_h2o <- h2o.automl(
   nfolds            = 5 
 )
 ```
-
+# Viewing the leaderboard
 
 ```{r}
 typeof(automl_models_h2o)
@@ -92,16 +94,13 @@ automl_models_h2o@leaderboard
 automl_models_h2o@leader
 ```
 
-
+# Predicting using Leader Model
 
 ```{r}
 h2o.init()
 
 stacked_ensemble_h2o <- h2o.loadModel("./../../assets/Models/GBM_1_AutoML_6_20230602_132940")
 ```
-
-
-
 
 
 ```{r}
