@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.475">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="author" content="Mohamed Eltabei">
+<meta name="dcterms.date" content="2023-06-11">
+<title>MyLabJournal - Explaining Black-Box Models with LIME</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../assets/icons/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script src="../../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script><link href="../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+</head>
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="navbar navbar-expand-lg navbar-dark "><div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">MyLabJournal</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+<li class="nav-item">
+    <a class="nav-link" href="../../index.html">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-journal" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Journal</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-journal">
+<li>
+    <a class="dropdown-item" href="../../content/01_journal/Chapter_1_Challenge.html">
+ <span class="dropdown-text">01 Machine Learning Fundamentals</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../content/01_journal/Regression.html">
+ <span class="dropdown-text">02 Supervised ML - Regression</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../content/01_journal/AutomatedML_I.html">
+ <span class="dropdown-text">03 Automated Machine Learning with H2O I</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../content/01_journal/AutomatedML.html">
+ <span class="dropdown-text">04 Automated Machine Learning with H2O II</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../content/01_journal/PerformanceMeasure.html">
+ <span class="dropdown-text">05 Performance Measures</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../content/01_journal/Explaining_BB_Models.html">
+ <span class="dropdown-text">06 Explaining Black-Box Models with LIME</span></a>
+  </li>  
+    </ul>
+</li>
+  <li class="nav-item">
+    <a class="nav-link" href="../../content/02_notes/05_class_notes.html">
+ <span class="menu-text">Class notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../content/03_other/06_links.html">
+ <span class="menu-text">Links</span></a>
+  </li>  
+</ul>
+<div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Contents</h2>
+   
+  <ul class="collapse">
+<li><a href="#part-1" id="toc-part-1" class="nav-link active" data-scroll-target="#part-1"><span class="toc-section-number">1</span>  Part 1</a></li>
+  </ul></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<h1 class="title">Explaining Black-Box Models with LIME</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Mohamed Eltabei </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 11, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header><section id="part-1" class="level1" data-number="1"><h1 data-number="1">
+<span class="header-section-number">1</span> Part 1</h1>
+<div class="cell" data-hash="Explaining_BB_Models_cache/html/unnamed-chunk-1_da1d6e332efcda934ec1bb115e0ad7bc">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># 1. Setup ----</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co"># Load Libraries </span></span>
+<span id="cb1-4"><a href="#cb1-4"></a></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="fu">library</span>(h2o)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; 
+#&gt; ----------------------------------------------------------------------
+#&gt; 
+#&gt; Your next step is to start H2O:
+#&gt;     &gt; h2o.init()
+#&gt; 
+#&gt; For H2O package documentation, ask for help:
+#&gt;     &gt; ??h2o
+#&gt; 
+#&gt; After starting H2O, you can use the Web UI at http://localhost:54321
+#&gt; For more information visit https://docs.h2o.ai
+#&gt; 
+#&gt; ----------------------------------------------------------------------</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; 
+#&gt; Attaching package: 'h2o'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; The following objects are masked from 'package:stats':
+#&gt; 
+#&gt;     cor, sd, var</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; The following objects are masked from 'package:base':
+#&gt; 
+#&gt;     %*%, %in%, &amp;&amp;, ||, apply, as.factor, as.numeric, colnames,
+#&gt;     colnames&lt;-, ifelse, is.character, is.factor, is.numeric, log,
+#&gt;     log10, log1p, log2, round, signif, trunc</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">library</span>(recipes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; Loading required package: dplyr</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; 
+#&gt; Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; The following objects are masked from 'package:stats':
+#&gt; 
+#&gt;     filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; The following objects are masked from 'package:base':
+#&gt; 
+#&gt;     intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; 
+#&gt; Attaching package: 'recipes'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; The following object is masked from 'package:stats':
+#&gt; 
+#&gt;     step</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+#&gt; ✔ forcats   1.0.0     ✔ readr     2.1.4
+#&gt; ✔ ggplot2   3.4.2     ✔ stringr   1.5.0
+#&gt; ✔ lubridate 1.9.2     ✔ tibble    3.2.1
+#&gt; ✔ purrr     1.0.1     ✔ tidyr     1.3.0</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+#&gt; ✖ lubridate::day()   masks h2o::day()
+#&gt; ✖ dplyr::filter()    masks stats::filter()
+#&gt; ✖ stringr::fixed()   masks recipes::fixed()
+#&gt; ✖ lubridate::hour()  masks h2o::hour()
+#&gt; ✖ dplyr::lag()       masks stats::lag()
+#&gt; ✖ lubridate::month() masks h2o::month()
+#&gt; ✖ lubridate::week()  masks h2o::week()
+#&gt; ✖ lubridate::year()  masks h2o::year()
+#&gt; ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">library</span>(tidyquant)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; Loading required package: PerformanceAnalytics
+#&gt; Loading required package: xts
+#&gt; Loading required package: zoo
+#&gt; 
+#&gt; Attaching package: 'zoo'
+#&gt; 
+#&gt; The following objects are masked from 'package:base':
+#&gt; 
+#&gt;     as.Date, as.Date.numeric
+#&gt; 
+#&gt; 
+#&gt; ######################### Warning from 'xts' package ##########################
+#&gt; #                                                                             #
+#&gt; # The dplyr lag() function breaks how base R's lag() function is supposed to  #
+#&gt; # work, which breaks lag(my_xts). Calls to lag(my_xts) that you type or       #
+#&gt; # source() into this session won't work correctly.                            #
+#&gt; #                                                                             #
+#&gt; # Use stats::lag() to make sure you're not using dplyr::lag(), or you can add #
+#&gt; # conflictRules('dplyr', exclude = 'lag') to your .Rprofile to stop           #
+#&gt; # dplyr from breaking base R's lag() function.                                #
+#&gt; #                                                                             #
+#&gt; # Code in packages is not affected. It's protected by R's namespace mechanism #
+#&gt; # Set `options(xts.warn_dplyr_breaks_lag = FALSE)` to suppress this warning.  #
+#&gt; #                                                                             #
+#&gt; ###############################################################################
+#&gt; 
+#&gt; Attaching package: 'xts'
+#&gt; 
+#&gt; The following objects are masked from 'package:dplyr':
+#&gt; 
+#&gt;     first, last
+#&gt; 
+#&gt; 
+#&gt; Attaching package: 'PerformanceAnalytics'
+#&gt; 
+#&gt; The following object is masked from 'package:graphics':
+#&gt; 
+#&gt;     legend
+#&gt; 
+#&gt; Loading required package: quantmod
+#&gt; Loading required package: TTR
+#&gt; Registered S3 method overwritten by 'quantmod':
+#&gt;   method            from
+#&gt;   as.zoo.data.frame zoo</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="fu">library</span>(lime)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; 
+#&gt; Attaching package: 'lime'
+#&gt; 
+#&gt; The following object is masked from 'package:dplyr':
+#&gt; 
+#&gt;     explain</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="fu">library</span>(parsnip)</span>
+<span id="cb20-2"><a href="#cb20-2"></a><span class="fu">library</span>(yardstick)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; 
+#&gt; Attaching package: 'yardstick'
+#&gt; 
+#&gt; The following object is masked from 'package:readr':
+#&gt; 
+#&gt;     spec</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="fu">library</span>(tidymodels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; ── Attaching packages ────────────────────────────────────── tidymodels 1.1.0 ──
+#&gt; ✔ broom        1.0.4     ✔ rsample      1.1.1
+#&gt; ✔ dials        1.2.0     ✔ tune         1.1.1
+#&gt; ✔ infer        1.0.4     ✔ workflows    1.1.3
+#&gt; ✔ modeldata    1.1.0     ✔ workflowsets 1.0.1
+#&gt; ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
+#&gt; ✖ scales::discard() masks purrr::discard()
+#&gt; ✖ lime::explain()   masks dplyr::explain()
+#&gt; ✖ dplyr::filter()   masks stats::filter()
+#&gt; ✖ xts::first()      masks dplyr::first()
+#&gt; ✖ stringr::fixed()  masks recipes::fixed()
+#&gt; ✖ dplyr::lag()      masks stats::lag()
+#&gt; ✖ xts::last()       masks dplyr::last()
+#&gt; ✖ dials::momentum() masks TTR::momentum()
+#&gt; ✖ yardstick::spec() masks readr::spec()
+#&gt; ✖ recipes::step()   masks stats::step()
+#&gt; • Search for functions across packages at https://www.tidymodels.org/find/</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="co"># Load Data</span></span>
+<span id="cb24-2"><a href="#cb24-2"></a>employee_attrition_tbl <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="st">"./../../assets/DataSets/datasets-1067-1925-WA_Fn-UseC_-HR-Employee-Attrition.xlsx"</span>)</span>
+<span id="cb24-3"><a href="#cb24-3"></a>definitions_raw_tbl    <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"./../../assets/DataSets/data_definitions.xlsx"</span>, <span class="at">sheet =</span> <span class="dv">1</span>, <span class="at">col_names =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; New names:
+#&gt; • `` -&gt; `...1`
+#&gt; • `` -&gt; `...2`</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>process_hr_data_readable <span class="ot">&lt;-</span> <span class="cf">function</span>(data, definitions_tbl) {</span>
+<span id="cb26-2"><a href="#cb26-2"></a>  </span>
+<span id="cb26-3"><a href="#cb26-3"></a>  definitions_list <span class="ot">&lt;-</span> definitions_tbl <span class="sc">%&gt;%</span></span>
+<span id="cb26-4"><a href="#cb26-4"></a>    <span class="fu">fill</span>(...<span class="dv">1</span>, <span class="at">.direction =</span> <span class="st">"down"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb26-5"><a href="#cb26-5"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(...<span class="dv">2</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-6"><a href="#cb26-6"></a>    <span class="fu">separate</span>(...<span class="dv">2</span>, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"key"</span>, <span class="st">"value"</span>), <span class="at">sep =</span> <span class="st">" '"</span>, <span class="at">remove =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb26-7"><a href="#cb26-7"></a>    <span class="fu">rename</span>(<span class="at">column_name =</span> ...<span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb26-8"><a href="#cb26-8"></a>    <span class="fu">mutate</span>(<span class="at">key =</span> <span class="fu">as.numeric</span>(key)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-9"><a href="#cb26-9"></a>    <span class="fu">mutate</span>(<span class="at">value =</span> value <span class="sc">%&gt;%</span> <span class="fu">str_replace</span>(<span class="at">pattern =</span> <span class="st">"'"</span>, <span class="at">replacement =</span> <span class="st">""</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-10"><a href="#cb26-10"></a>    <span class="fu">split</span>(.<span class="sc">$</span>column_name) <span class="sc">%&gt;%</span></span>
+<span id="cb26-11"><a href="#cb26-11"></a>    <span class="fu">map</span>(<span class="sc">~</span> <span class="fu">select</span>(., <span class="sc">-</span>column_name)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-12"><a href="#cb26-12"></a>    <span class="fu">map</span>(<span class="sc">~</span> <span class="fu">mutate</span>(., <span class="at">value =</span> <span class="fu">as_factor</span>(value))) </span>
+<span id="cb26-13"><a href="#cb26-13"></a>  </span>
+<span id="cb26-14"><a href="#cb26-14"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(definitions_list)) {</span>
+<span id="cb26-15"><a href="#cb26-15"></a>    list_name <span class="ot">&lt;-</span> <span class="fu">names</span>(definitions_list)[i]</span>
+<span id="cb26-16"><a href="#cb26-16"></a>    <span class="fu">colnames</span>(definitions_list[[i]]) <span class="ot">&lt;-</span> <span class="fu">c</span>(list_name, <span class="fu">paste0</span>(list_name, <span class="st">"_value"</span>))</span>
+<span id="cb26-17"><a href="#cb26-17"></a>  }</span>
+<span id="cb26-18"><a href="#cb26-18"></a>  </span>
+<span id="cb26-19"><a href="#cb26-19"></a>  data_merged_tbl <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">HR_Data =</span> data) <span class="sc">%&gt;%</span></span>
+<span id="cb26-20"><a href="#cb26-20"></a>    <span class="fu">append</span>(definitions_list, <span class="at">after =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb26-21"><a href="#cb26-21"></a>    <span class="fu">reduce</span>(left_join) <span class="sc">%&gt;%</span></span>
+<span id="cb26-22"><a href="#cb26-22"></a>    <span class="fu">select</span>(<span class="sc">-</span><span class="fu">one_of</span>(<span class="fu">names</span>(definitions_list))) <span class="sc">%&gt;%</span></span>
+<span id="cb26-23"><a href="#cb26-23"></a>    <span class="fu">set_names</span>(<span class="fu">str_replace_all</span>(<span class="fu">names</span>(.), <span class="at">pattern =</span> <span class="st">"_value"</span>, </span>
+<span id="cb26-24"><a href="#cb26-24"></a>                              <span class="at">replacement =</span> <span class="st">""</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-25"><a href="#cb26-25"></a>    <span class="fu">select</span>(<span class="fu">sort</span>(<span class="fu">names</span>(.))) <span class="sc">%&gt;%</span></span>
+<span id="cb26-26"><a href="#cb26-26"></a>    <span class="fu">mutate_if</span>(is.character, as.factor) <span class="sc">%&gt;%</span></span>
+<span id="cb26-27"><a href="#cb26-27"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb26-28"><a href="#cb26-28"></a>      <span class="at">BusinessTravel =</span> BusinessTravel <span class="sc">%&gt;%</span> <span class="fu">fct_relevel</span>(<span class="st">"Non-Travel"</span>, </span>
+<span id="cb26-29"><a href="#cb26-29"></a>                                                      <span class="st">"Travel_Rarely"</span>, </span>
+<span id="cb26-30"><a href="#cb26-30"></a>                                                      <span class="st">"Travel_Frequently"</span>),</span>
+<span id="cb26-31"><a href="#cb26-31"></a>      <span class="at">MaritalStatus  =</span> MaritalStatus <span class="sc">%&gt;%</span> <span class="fu">fct_relevel</span>(<span class="st">"Single"</span>, </span>
+<span id="cb26-32"><a href="#cb26-32"></a>                                                     <span class="st">"Married"</span>, </span>
+<span id="cb26-33"><a href="#cb26-33"></a>                                                     <span class="st">"Divorced"</span>)</span>
+<span id="cb26-34"><a href="#cb26-34"></a>    )</span>
+<span id="cb26-35"><a href="#cb26-35"></a>  </span>
+<span id="cb26-36"><a href="#cb26-36"></a>  <span class="fu">return</span>(data_merged_tbl)</span>
+<span id="cb26-37"><a href="#cb26-37"></a>  </span>
+<span id="cb26-38"><a href="#cb26-38"></a>}</span>
+<span id="cb26-39"><a href="#cb26-39"></a></span>
+<span id="cb26-40"><a href="#cb26-40"></a></span>
+<span id="cb26-41"><a href="#cb26-41"></a>employee_attrition_readable_tbl <span class="ot">&lt;-</span> <span class="fu">process_hr_data_readable</span>(employee_attrition_tbl, definitions_raw_tbl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; Joining with `by = join_by(Education)`
+#&gt; Joining with `by = join_by(EnvironmentSatisfaction)`
+#&gt; Joining with `by = join_by(JobInvolvement)`
+#&gt; Joining with `by = join_by(JobSatisfaction)`
+#&gt; Joining with `by = join_by(PerformanceRating)`
+#&gt; Joining with `by = join_by(RelationshipSatisfaction)`
+#&gt; Joining with `by = join_by(WorkLifeBalance)`</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="co"># Split into test and train</span></span>
+<span id="cb28-2"><a href="#cb28-2"></a><span class="fu">set.seed</span>(<span class="at">seed =</span> <span class="dv">1113</span>)</span>
+<span id="cb28-3"><a href="#cb28-3"></a>split_obj <span class="ot">&lt;-</span> rsample<span class="sc">::</span><span class="fu">initial_split</span>(employee_attrition_readable_tbl, <span class="at">prop =</span> <span class="fl">0.85</span>)</span>
+<span id="cb28-4"><a href="#cb28-4"></a></span>
+<span id="cb28-5"><a href="#cb28-5"></a><span class="co"># Assign training and test data</span></span>
+<span id="cb28-6"><a href="#cb28-6"></a>train_readable_tbl <span class="ot">&lt;-</span> <span class="fu">training</span>(split_obj)</span>
+<span id="cb28-7"><a href="#cb28-7"></a>test_readable_tbl  <span class="ot">&lt;-</span> <span class="fu">testing</span>(split_obj)</span>
+<span id="cb28-8"><a href="#cb28-8"></a></span>
+<span id="cb28-9"><a href="#cb28-9"></a><span class="co"># ML Preprocessing Recipe </span></span>
+<span id="cb28-10"><a href="#cb28-10"></a>recipe_obj <span class="ot">&lt;-</span> <span class="fu">recipe</span>(Attrition <span class="sc">~</span> ., <span class="at">data =</span> train_readable_tbl) <span class="sc">%&gt;%</span></span>
+<span id="cb28-11"><a href="#cb28-11"></a>  <span class="fu">step_zv</span>(<span class="fu">all_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb28-12"><a href="#cb28-12"></a>  <span class="fu">step_mutate_at</span>(<span class="fu">c</span>(<span class="st">"JobLevel"</span>, <span class="st">"StockOptionLevel"</span>), <span class="at">fn =</span> as.factor) <span class="sc">%&gt;%</span> </span>
+<span id="cb28-13"><a href="#cb28-13"></a>  <span class="fu">prep</span>()</span>
+<span id="cb28-14"><a href="#cb28-14"></a></span>
+<span id="cb28-15"><a href="#cb28-15"></a>recipe_obj</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; 
+#&gt; ── Recipe ──────────────────────────────────────────────────────────────────────
+#&gt; 
+#&gt; ── Inputs 
+#&gt; Number of variables by role
+#&gt; outcome:    1
+#&gt; predictor: 34
+#&gt; 
+#&gt; ── Training information 
+#&gt; Training data contained 1249 data points and no incomplete rows.
+#&gt; 
+#&gt; ── Operations 
+#&gt; • Zero variance filter removed: EmployeeCount, Over18, StandardHours | Trained
+#&gt; • Variable mutation for: JobLevel, StockOptionLevel | Trained</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>train_tbl <span class="ot">&lt;-</span> <span class="fu">bake</span>(recipe_obj, <span class="at">new_data =</span> train_readable_tbl)</span>
+<span id="cb30-2"><a href="#cb30-2"></a>test_tbl  <span class="ot">&lt;-</span> <span class="fu">bake</span>(recipe_obj, <span class="at">new_data =</span> test_readable_tbl)</span>
+<span id="cb30-3"><a href="#cb30-3"></a></span>
+<span id="cb30-4"><a href="#cb30-4"></a><span class="co"># 2. Models ----</span></span>
+<span id="cb30-5"><a href="#cb30-5"></a></span>
+<span id="cb30-6"><a href="#cb30-6"></a><span class="fu">h2o.init</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt;  Connection successful!
+#&gt; 
+#&gt; R is connected to the H2O cluster: 
+#&gt;     H2O cluster uptime:         1 minutes 18 seconds 
+#&gt;     H2O cluster timezone:       Europe/Berlin 
+#&gt;     H2O data parsing timezone:  UTC 
+#&gt;     H2O cluster version:        3.40.0.4 
+#&gt;     H2O cluster version age:    1 month and 14 days 
+#&gt;     H2O cluster name:           H2O_started_from_R_Mohamed_drs368 
+#&gt;     H2O cluster total nodes:    1 
+#&gt;     H2O cluster total memory:   1.47 GB 
+#&gt;     H2O cluster total cores:    8 
+#&gt;     H2O cluster allowed cores:  8 
+#&gt;     H2O cluster healthy:        TRUE 
+#&gt;     H2O Connection ip:          localhost 
+#&gt;     H2O Connection port:        54321 
+#&gt;     H2O Connection proxy:       NA 
+#&gt;     H2O Internal Security:      FALSE 
+#&gt;     R Version:                  R version 4.3.0 (2023-04-21 ucrt)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>automl_leader <span class="ot">&lt;-</span> <span class="fu">h2o.loadModel</span>(<span class="st">"./../../assets/Models/DeepLearning_grid_1_AutoML_4_20230602_180322_model_1"</span>)</span>
+<span id="cb32-2"><a href="#cb32-2"></a>automl_leader</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; Model Details:
+#&gt; ==============
+#&gt; 
+#&gt; H2OBinomialModel: deeplearning
+#&gt; Model ID:  DeepLearning_grid_1_AutoML_4_20230602_180322_model_1 
+#&gt; Status of Neuron Layers: predicting Attrition, 2-class classification, bernoulli distribution, CrossEntropy loss, 1,962 weights/biases, 33.3 KB, 9,361 training samples, mini-batch size 1
+#&gt;   layer units             type dropout       l1       l2 mean_rate rate_rms
+#&gt; 1     1    95            Input  5.00 %       NA       NA        NA       NA
+#&gt; 2     2    20 RectifierDropout  0.00 % 0.000000 0.000000  0.170886 0.383407
+#&gt; 3     3     2          Softmax      NA 0.000000 0.000000  0.001443 0.000402
+#&gt;   momentum mean_weight weight_rms mean_bias bias_rms
+#&gt; 1       NA          NA         NA        NA       NA
+#&gt; 2 0.000000   -0.003411   0.125273  0.476819 0.061770
+#&gt; 3 0.000000    0.099604   1.249723 -0.003959 0.016723
+#&gt; 
+#&gt; 
+#&gt; H2OBinomialMetrics: deeplearning
+#&gt; ** Reported on training data. **
+#&gt; ** Metrics reported on full training frame **
+#&gt; 
+#&gt; MSE:  0.06325354
+#&gt; RMSE:  0.2515026
+#&gt; LogLoss:  0.2330783
+#&gt; Mean Per-Class Error:  0.1826679
+#&gt; AUC:  0.9095887
+#&gt; AUCPR:  0.7782235
+#&gt; Gini:  0.8191774
+#&gt; 
+#&gt; Confusion Matrix (vertical: actual; across: predicted) for F1-optimal threshold:
+#&gt;         No Yes    Error      Rate
+#&gt; No     876  33 0.036304   =33/909
+#&gt; Yes     51 104 0.329032   =51/155
+#&gt; Totals 927 137 0.078947  =84/1064
+#&gt; 
+#&gt; Maximum Metrics: Maximum metrics at their respective thresholds
+#&gt;                         metric threshold      value idx
+#&gt; 1                       max f1  0.316158   0.712329 129
+#&gt; 2                       max f2  0.128333   0.738832 210
+#&gt; 3                 max f0point5  0.523563   0.787476  87
+#&gt; 4                 max accuracy  0.424451   0.923872 102
+#&gt; 5                max precision  0.989375   1.000000   0
+#&gt; 6                   max recall  0.000215   1.000000 398
+#&gt; 7              max specificity  0.989375   1.000000   0
+#&gt; 8             max absolute_mcc  0.316158   0.668485 129
+#&gt; 9   max min_per_class_accuracy  0.111544   0.838710 221
+#&gt; 10 max mean_per_class_accuracy  0.128333   0.847922 210
+#&gt; 11                     max tns  0.989375 909.000000   0
+#&gt; 12                     max fns  0.989375 153.000000   0
+#&gt; 13                     max fps  0.000082 909.000000 399
+#&gt; 14                     max tps  0.000215 155.000000 398
+#&gt; 15                     max tnr  0.989375   1.000000   0
+#&gt; 16                     max fnr  0.989375   0.987097   0
+#&gt; 17                     max fpr  0.000082   1.000000 399
+#&gt; 18                     max tpr  0.000215   1.000000 398
+#&gt; 
+#&gt; Gains/Lift Table: Extract with `h2o.gainsLift(&lt;model&gt;, &lt;data&gt;)` or `h2o.gainsLift(&lt;model&gt;, valid=&lt;T/F&gt;, xval=&lt;T/F&gt;)`
+#&gt; H2OBinomialMetrics: deeplearning
+#&gt; ** Reported on validation data. **
+#&gt; ** Metrics reported on full validation frame **
+#&gt; 
+#&gt; MSE:  0.1094026
+#&gt; RMSE:  0.3307607
+#&gt; LogLoss:  0.3706395
+#&gt; Mean Per-Class Error:  0.2123165
+#&gt; AUC:  0.8605442
+#&gt; AUCPR:  0.6788407
+#&gt; Gini:  0.7210884
+#&gt; 
+#&gt; Confusion Matrix (vertical: actual; across: predicted) for F1-optimal threshold:
+#&gt;         No Yes    Error     Rate
+#&gt; No     131  16 0.108844  =16/147
+#&gt; Yes     12  26 0.315789   =12/38
+#&gt; Totals 143  42 0.151351  =28/185
+#&gt; 
+#&gt; Maximum Metrics: Maximum metrics at their respective thresholds
+#&gt;                         metric threshold      value idx
+#&gt; 1                       max f1  0.260408   0.650000  41
+#&gt; 2                       max f2  0.045290   0.708333  87
+#&gt; 3                 max f0point5  0.349158   0.676471  32
+#&gt; 4                 max accuracy  0.349158   0.864865  32
+#&gt; 5                max precision  0.993065   1.000000   0
+#&gt; 6                   max recall  0.003745   1.000000 148
+#&gt; 7              max specificity  0.993065   1.000000   0
+#&gt; 8             max absolute_mcc  0.349158   0.566940  32
+#&gt; 9   max min_per_class_accuracy  0.127582   0.763158  61
+#&gt; 10 max mean_per_class_accuracy  0.260408   0.787683  41
+#&gt; 11                     max tns  0.993065 147.000000   0
+#&gt; 12                     max fns  0.993065  37.000000   0
+#&gt; 13                     max fps  0.000028 147.000000 184
+#&gt; 14                     max tps  0.003745  38.000000 148
+#&gt; 15                     max tnr  0.993065   1.000000   0
+#&gt; 16                     max fnr  0.993065   0.973684   0
+#&gt; 17                     max fpr  0.000028   1.000000 184
+#&gt; 18                     max tpr  0.003745   1.000000 148
+#&gt; 
+#&gt; Gains/Lift Table: Extract with `h2o.gainsLift(&lt;model&gt;, &lt;data&gt;)` or `h2o.gainsLift(&lt;model&gt;, valid=&lt;T/F&gt;, xval=&lt;T/F&gt;)`
+#&gt; H2OBinomialMetrics: deeplearning
+#&gt; ** Reported on cross-validation data. **
+#&gt; ** 5-fold cross-validation on training data (Metrics computed for combined holdout predictions) **
+#&gt; 
+#&gt; MSE:  0.1258809
+#&gt; RMSE:  0.354797
+#&gt; LogLoss:  0.6982145
+#&gt; Mean Per-Class Error:  0.2820327
+#&gt; AUC:  0.7880301
+#&gt; AUCPR:  0.4484105
+#&gt; Gini:  0.5760602
+#&gt; 
+#&gt; Confusion Matrix (vertical: actual; across: predicted) for F1-optimal threshold:
+#&gt;         No Yes    Error       Rate
+#&gt; No     754 155 0.170517   =155/909
+#&gt; Yes     61  94 0.393548    =61/155
+#&gt; Totals 815 249 0.203008  =216/1064
+#&gt; 
+#&gt; Maximum Metrics: Maximum metrics at their respective thresholds
+#&gt;                         metric threshold      value idx
+#&gt; 1                       max f1  0.043324   0.465347 237
+#&gt; 2                       max f2  0.002429   0.598039 349
+#&gt; 3                 max f0point5  0.715257   0.508806  80
+#&gt; 4                 max accuracy  0.715257   0.868421  80
+#&gt; 5                max precision  0.999992   1.000000   0
+#&gt; 6                   max recall  0.000000   1.000000 399
+#&gt; 7              max specificity  0.999992   1.000000   0
+#&gt; 8             max absolute_mcc  0.687441   0.378371  85
+#&gt; 9   max min_per_class_accuracy  0.007394   0.735484 310
+#&gt; 10 max mean_per_class_accuracy  0.007394   0.744530 310
+#&gt; 11                     max tns  0.999992 909.000000   0
+#&gt; 12                     max fns  0.999992 151.000000   0
+#&gt; 13                     max fps  0.000000 909.000000 399
+#&gt; 14                     max tps  0.000000 155.000000 399
+#&gt; 15                     max tnr  0.999992   1.000000   0
+#&gt; 16                     max fnr  0.999992   0.974194   0
+#&gt; 17                     max fpr  0.000000   1.000000 399
+#&gt; 18                     max tpr  0.000000   1.000000 399
+#&gt; 
+#&gt; Gains/Lift Table: Extract with `h2o.gainsLift(&lt;model&gt;, &lt;data&gt;)` or `h2o.gainsLift(&lt;model&gt;, valid=&lt;T/F&gt;, xval=&lt;T/F&gt;)`
+#&gt; Cross-Validation Metrics Summary: 
+#&gt;                              mean       sd cv_1_valid cv_2_valid cv_3_valid
+#&gt; accuracy                 0.855235 0.024053   0.859155   0.892019   0.849765
+#&gt; auc                      0.805798 0.039807   0.739318   0.823694   0.814328
+#&gt; err                      0.144765 0.024053   0.140845   0.107981   0.150235
+#&gt; err_count               30.800000 5.069517  30.000000  23.000000  32.000000
+#&gt; f0point5                 0.522850 0.092704   0.454545   0.671642   0.550459
+#&gt; f1                       0.532978 0.076841   0.423077   0.610170   0.600000
+#&gt; f2                       0.555967 0.110224   0.395683   0.559006   0.659341
+#&gt; lift_top_group           5.940102 2.056993   2.448276   6.264706   6.264706
+#&gt; logloss                  0.414162 0.042010   0.459008   0.393668   0.401740
+#&gt; max_per_class_error      0.418298 0.159580   0.620690   0.470588   0.294118
+#&gt; mcc                      0.461740 0.084063   0.347077   0.557935   0.518896
+#&gt; mean_per_class_accuracy  0.742031 0.060409   0.657046   0.745153   0.791489
+#&gt; mean_per_class_error     0.257969 0.060409   0.342954   0.254847   0.208511
+#&gt; mse                      0.103424 0.003140   0.107143   0.098660   0.102990
+#&gt; pr_auc                   0.520403 0.080464   0.390518   0.580461   0.592620
+#&gt; precision                0.521739 0.118804   0.478261   0.720000   0.521739
+#&gt; r2                       0.162364 0.085318   0.089024   0.264524   0.232246
+#&gt; recall                   0.581702 0.159580   0.379310   0.529412   0.705882
+#&gt; rmse                     0.321566 0.004899   0.327327   0.314102   0.320920
+#&gt; specificity              0.902359 0.050059   0.934783   0.960894   0.877095
+#&gt;                         cv_4_valid cv_5_valid
+#&gt; accuracy                  0.849765   0.825472
+#&gt; auc                       0.806806   0.844845
+#&gt; err                       0.150235   0.174528
+#&gt; err_count                32.000000  37.000000
+#&gt; f0point5                  0.490798   0.446809
+#&gt; f1                        0.500000   0.531646
+#&gt; f2                        0.509554   0.656250
+#&gt; lift_top_group            6.870968   7.851852
+#&gt; logloss                   0.455116   0.361278
+#&gt; max_per_class_error       0.483871   0.222222
+#&gt; mcc                       0.411982   0.472809
+#&gt; mean_per_class_accuracy   0.711361   0.805105
+#&gt; mean_per_class_error      0.288639   0.194895
+#&gt; mse                       0.105067   0.103259
+#&gt; pr_auc                    0.509142   0.529274
+#&gt; precision                 0.484849   0.403846
+#&gt; r2                        0.155127   0.070901
+#&gt; recall                    0.516129   0.777778
+#&gt; rmse                      0.324140   0.321339
+#&gt; specificity               0.906593   0.832432</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="co"># 3. LIME ----</span></span>
+<span id="cb34-2"><a href="#cb34-2"></a></span>
+<span id="cb34-3"><a href="#cb34-3"></a><span class="co"># 3.1 Making Predictions ----</span></span>
+<span id="cb34-4"><a href="#cb34-4"></a></span>
+<span id="cb34-5"><a href="#cb34-5"></a>predictions_tbl <span class="ot">&lt;-</span> automl_leader <span class="sc">%&gt;%</span> </span>
+<span id="cb34-6"><a href="#cb34-6"></a>  <span class="fu">h2o.predict</span>(<span class="at">newdata =</span> <span class="fu">as.h2o</span>(test_tbl)) <span class="sc">%&gt;%</span></span>
+<span id="cb34-7"><a href="#cb34-7"></a>  <span class="fu">as.tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb34-8"><a href="#cb34-8"></a>  <span class="fu">bind_cols</span>(</span>
+<span id="cb34-9"><a href="#cb34-9"></a>    test_tbl <span class="sc">%&gt;%</span></span>
+<span id="cb34-10"><a href="#cb34-10"></a>      <span class="fu">select</span>(Attrition, EmployeeNumber)</span>
+<span id="cb34-11"><a href="#cb34-11"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>#&gt; Warning: `as.tibble()` was deprecated in tibble 2.0.0.
+#&gt; ℹ Please use `as_tibble()` instead.
+#&gt; ℹ The signature and semantics have changed, see `?as_tibble`.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |======================================================================| 100%
+#&gt; 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |======================================================================| 100%</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>predictions_tbl</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["predict"],"name":[1],"type":["fct"],"align":["left"]},{"label":["No"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Yes"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Attrition"],"name":[4],"type":["fct"],"align":["left"]},{"label":["EmployeeNumber"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"No","2":"0.75257586","3":"2.474241e-01","4":"No","5":"10"},{"1":"No","2":"0.91032108","3":"8.967892e-02","4":"No","5":"16"},{"1":"No","2":"0.90816665","3":"9.183335e-02","4":"No","5":"30"},{"1":"No","2":"0.79254339","3":"2.074566e-01","4":"Yes","5":"31"},{"1":"No","2":"0.99494238","3":"5.057615e-03","4":"No","5":"40"},{"1":"No","2":"0.99674108","3":"3.258921e-03","4":"Yes","5":"42"},{"1":"No","2":"0.99954006","3":"4.599353e-04","4":"No","5":"46"},{"1":"Yes","2":"0.21213772","3":"7.878623e-01","4":"Yes","5":"55"},{"1":"Yes","2":"0.25354185","3":"7.464581e-01","4":"Yes","5":"64"},{"1":"No","2":"0.99979552","3":"2.044800e-04","4":"No","5":"77"},{"1":"No","2":"0.98050484","3":"1.949516e-02","4":"No","5":"80"},{"1":"No","2":"0.85189383","3":"1.481062e-01","4":"No","5":"83"},{"1":"No","2":"0.95089417","3":"4.910583e-02","4":"No","5":"85"},{"1":"No","2":"0.99949739","3":"5.026132e-04","4":"No","5":"96"},{"1":"No","2":"0.97754154","3":"2.245846e-02","4":"No","5":"121"},{"1":"No","2":"0.90420292","3":"9.579708e-02","4":"No","5":"125"},{"1":"No","2":"0.99982488","3":"1.751239e-04","4":"No","5":"140"},{"1":"No","2":"0.96452815","3":"3.547185e-02","4":"No","5":"145"},{"1":"No","2":"0.99623544","3":"3.764557e-03","4":"No","5":"158"},{"1":"No","2":"0.95185892","3":"4.814108e-02","4":"No","5":"159"},{"1":"No","2":"0.97383618","3":"2.616382e-02","4":"No","5":"160"},{"1":"Yes","2":"0.07285556","3":"9.271444e-01","4":"Yes","5":"163"},{"1":"No","2":"0.99627334","3":"3.726655e-03","4":"Yes","5":"165"},{"1":"No","2":"0.95570038","3":"4.429962e-02","4":"Yes","5":"179"},{"1":"No","2":"0.91345512","3":"8.654488e-02","4":"No","5":"184"},{"1":"No","2":"0.99267656","3":"7.323439e-03","4":"No","5":"193"},{"1":"No","2":"0.94341570","3":"5.658430e-02","4":"No","5":"194"},{"1":"No","2":"0.96912258","3":"3.087742e-02","4":"No","5":"197"},{"1":"No","2":"0.97441757","3":"2.558243e-02","4":"No","5":"199"},{"1":"No","2":"0.96079888","3":"3.920112e-02","4":"No","5":"200"},{"1":"No","2":"0.99615713","3":"3.842868e-03","4":"No","5":"204"},{"1":"No","2":"0.98080353","3":"1.919647e-02","4":"No","5":"206"},{"1":"No","2":"0.99511172","3":"4.888283e-03","4":"No","5":"217"},{"1":"Yes","2":"0.65468240","3":"3.453176e-01","4":"No","5":"224"},{"1":"No","2":"0.99119797","3":"8.802031e-03","4":"No","5":"239"},{"1":"Yes","2":"0.20541498","3":"7.945850e-01","4":"Yes","5":"248"},{"1":"No","2":"0.99859285","3":"1.407155e-03","4":"No","5":"252"},{"1":"No","2":"0.99979293","3":"2.070669e-04","4":"No","5":"270"},{"1":"No","2":"0.99797279","3":"2.027207e-03","4":"No","5":"273"},{"1":"No","2":"0.92531311","3":"7.468689e-02","4":"Yes","5":"291"},{"1":"No","2":"0.99025183","3":"9.748171e-03","4":"No","5":"307"},{"1":"No","2":"0.99205755","3":"7.942449e-03","4":"No","5":"309"},{"1":"No","2":"0.93615012","3":"6.384988e-02","4":"No","5":"311"},{"1":"No","2":"0.98839962","3":"1.160038e-02","4":"No","5":"312"},{"1":"No","2":"0.91057434","3":"8.942566e-02","4":"No","5":"314"},{"1":"No","2":"0.91729783","3":"8.270217e-02","4":"No","5":"321"},{"1":"No","2":"0.99773282","3":"2.267182e-03","4":"No","5":"327"},{"1":"No","2":"0.95325367","3":"4.674633e-02","4":"No","5":"333"},{"1":"No","2":"0.98827753","3":"1.172247e-02","4":"No","5":"334"},{"1":"No","2":"0.99951855","3":"4.814496e-04","4":"No","5":"361"},{"1":"No","2":"0.99868056","3":"1.319436e-03","4":"No","5":"367"},{"1":"No","2":"0.92312578","3":"7.687422e-02","4":"No","5":"382"},{"1":"Yes","2":"0.34744188","3":"6.525581e-01","4":"No","5":"390"},{"1":"No","2":"0.99898620","3":"1.013798e-03","4":"No","5":"395"},{"1":"No","2":"0.98401991","3":"1.598009e-02","4":"No","5":"406"},{"1":"No","2":"0.99374178","3":"6.258216e-03","4":"No","5":"412"},{"1":"No","2":"0.99980028","3":"1.997224e-04","4":"No","5":"417"},{"1":"No","2":"0.98679684","3":"1.320316e-02","4":"No","5":"422"},{"1":"No","2":"0.92284010","3":"7.715990e-02","4":"Yes","5":"433"},{"1":"No","2":"0.98353552","3":"1.646448e-02","4":"No","5":"444"},{"1":"Yes","2":"0.63583074","3":"3.641693e-01","4":"No","5":"451"},{"1":"No","2":"0.99204502","3":"7.954982e-03","4":"No","5":"452"},{"1":"No","2":"0.93799314","3":"6.200686e-02","4":"No","5":"456"},{"1":"No","2":"0.98926346","3":"1.073654e-02","4":"No","5":"465"},{"1":"Yes","2":"0.27377583","3":"7.262242e-01","4":"No","5":"467"},{"1":"No","2":"0.98460169","3":"1.539831e-02","4":"No","5":"474"},{"1":"No","2":"0.99191297","3":"8.087025e-03","4":"No","5":"486"},{"1":"No","2":"0.99865229","3":"1.347714e-03","4":"No","5":"487"},{"1":"No","2":"0.96185764","3":"3.814236e-02","4":"No","5":"495"},{"1":"No","2":"0.97702224","3":"2.297776e-02","4":"No","5":"496"},{"1":"No","2":"0.95700123","3":"4.299877e-02","4":"Yes","5":"510"},{"1":"No","2":"0.77769535","3":"2.223047e-01","4":"No","5":"513"},{"1":"No","2":"0.90593662","3":"9.406338e-02","4":"Yes","5":"538"},{"1":"No","2":"0.98526925","3":"1.473075e-02","4":"No","5":"547"},{"1":"No","2":"0.91562191","3":"8.437809e-02","4":"No","5":"549"},{"1":"No","2":"0.99980209","3":"1.979120e-04","4":"No","5":"550"},{"1":"No","2":"0.99970250","3":"2.974971e-04","4":"No","5":"558"},{"1":"No","2":"0.96186540","3":"3.813460e-02","4":"No","5":"567"},{"1":"No","2":"0.99657592","3":"3.424084e-03","4":"No","5":"568"},{"1":"No","2":"0.99972099","3":"2.790068e-04","4":"No","5":"574"},{"1":"No","2":"0.99576323","3":"4.236765e-03","4":"No","5":"579"},{"1":"No","2":"0.99992605","3":"7.394711e-05","4":"No","5":"581"},{"1":"No","2":"0.79705845","3":"2.029415e-01","4":"No","5":"591"},{"1":"No","2":"0.97837337","3":"2.162663e-02","4":"No","5":"623"},{"1":"No","2":"0.99321886","3":"6.781136e-03","4":"No","5":"671"},{"1":"No","2":"0.99184371","3":"8.156290e-03","4":"No","5":"679"},{"1":"No","2":"0.99244973","3":"7.550274e-03","4":"No","5":"690"},{"1":"No","2":"0.99446985","3":"5.530151e-03","4":"No","5":"691"},{"1":"No","2":"0.99930557","3":"6.944346e-04","4":"No","5":"692"},{"1":"No","2":"0.76499106","3":"2.350089e-01","4":"Yes","5":"701"},{"1":"Yes","2":"0.29252055","3":"7.074794e-01","4":"Yes","5":"702"},{"1":"No","2":"0.99916074","3":"8.392573e-04","4":"No","5":"707"},{"1":"No","2":"0.98815641","3":"1.184359e-02","4":"No","5":"712"},{"1":"No","2":"0.99894747","3":"1.052528e-03","4":"No","5":"714"},{"1":"No","2":"0.98704531","3":"1.295469e-02","4":"No","5":"716"},{"1":"No","2":"0.99817050","3":"1.829499e-03","4":"No","5":"733"},{"1":"No","2":"0.99839209","3":"1.607909e-03","4":"No","5":"734"},{"1":"No","2":"0.96827208","3":"3.172792e-02","4":"No","5":"758"},{"1":"No","2":"0.99887565","3":"1.124352e-03","4":"No","5":"775"},{"1":"No","2":"0.94427806","3":"5.572194e-02","4":"No","5":"784"},{"1":"No","2":"0.99901336","3":"9.866437e-04","4":"No","5":"786"},{"1":"Yes","2":"0.59872835","3":"4.012716e-01","4":"Yes","5":"796"},{"1":"No","2":"0.99436823","3":"5.631772e-03","4":"No","5":"820"},{"1":"No","2":"0.98090687","3":"1.909313e-02","4":"Yes","5":"825"},{"1":"No","2":"0.95941009","3":"4.058991e-02","4":"No","5":"834"},{"1":"No","2":"0.92986192","3":"7.013808e-02","4":"No","5":"837"},{"1":"No","2":"0.98582516","3":"1.417484e-02","4":"Yes","5":"840"},{"1":"No","2":"0.94978725","3":"5.021275e-02","4":"No","5":"861"},{"1":"No","2":"0.98895690","3":"1.104310e-02","4":"No","5":"862"},{"1":"Yes","2":"0.58943010","3":"4.105699e-01","4":"No","5":"879"},{"1":"No","2":"0.99675534","3":"3.244663e-03","4":"No","5":"895"},{"1":"Yes","2":"0.70084435","3":"2.991556e-01","4":"No","5":"913"},{"1":"No","2":"0.86912547","3":"1.308745e-01","4":"Yes","5":"927"},{"1":"No","2":"0.98814692","3":"1.185308e-02","4":"No","5":"930"},{"1":"No","2":"0.99148967","3":"8.510334e-03","4":"No","5":"940"},{"1":"No","2":"0.98674732","3":"1.325268e-02","4":"No","5":"949"},{"1":"Yes","2":"0.08289913","3":"9.171009e-01","4":"Yes","5":"960"},{"1":"Yes","2":"0.53537194","3":"4.646281e-01","4":"Yes","5":"970"},{"1":"No","2":"0.98882458","3":"1.117542e-02","4":"No","5":"981"},{"1":"No","2":"0.96184092","3":"3.815908e-02","4":"Yes","5":"986"},{"1":"No","2":"0.99956479","3":"4.352101e-04","4":"No","5":"996"},{"1":"No","2":"0.99924966","3":"7.503371e-04","4":"No","5":"1005"},{"1":"No","2":"0.76809706","3":"2.319029e-01","4":"No","5":"1014"},{"1":"Yes","2":"0.19665563","3":"8.033444e-01","4":"Yes","5":"1016"},{"1":"No","2":"0.99997469","3":"2.531498e-05","4":"No","5":"1018"},{"1":"Yes","2":"0.55178582","3":"4.482142e-01","4":"No","5":"1019"},{"1":"No","2":"0.90890679","3":"9.109321e-02","4":"No","5":"1034"},{"1":"No","2":"0.83916670","3":"1.608333e-01","4":"No","5":"1055"},{"1":"Yes","2":"0.73074516","3":"2.692548e-01","4":"Yes","5":"1079"},{"1":"No","2":"0.77776059","3":"2.222394e-01","4":"Yes","5":"1098"},{"1":"Yes","2":"0.73671039","3":"2.632896e-01","4":"Yes","5":"1107"},{"1":"No","2":"0.98993292","3":"1.006708e-02","4":"No","5":"1114"},{"1":"No","2":"0.99646276","3":"3.537239e-03","4":"No","5":"1115"},{"1":"No","2":"0.93500317","3":"6.499683e-02","4":"No","5":"1136"},{"1":"No","2":"0.99271174","3":"7.288256e-03","4":"No","5":"1150"},{"1":"No","2":"0.90363974","3":"9.636026e-02","4":"Yes","5":"1165"},{"1":"No","2":"0.99565424","3":"4.345757e-03","4":"No","5":"1179"},{"1":"No","2":"0.94168154","3":"5.831846e-02","4":"No","5":"1185"},{"1":"No","2":"0.93390154","3":"6.609846e-02","4":"Yes","5":"1200"},{"1":"No","2":"0.98144433","3":"1.855567e-02","4":"No","5":"1207"},{"1":"Yes","2":"0.15336131","3":"8.466387e-01","4":"Yes","5":"1210"},{"1":"No","2":"0.92315875","3":"7.684125e-02","4":"No","5":"1211"},{"1":"No","2":"0.90323083","3":"9.676917e-02","4":"No","5":"1234"},{"1":"No","2":"0.99880517","3":"1.194833e-03","4":"No","5":"1238"},{"1":"No","2":"0.90348642","3":"9.651358e-02","4":"No","5":"1244"},{"1":"No","2":"0.96650369","3":"3.349631e-02","4":"No","5":"1256"},{"1":"No","2":"0.98833509","3":"1.166491e-02","4":"No","5":"1257"},{"1":"No","2":"0.97834916","3":"2.165084e-02","4":"No","5":"1265"},{"1":"Yes","2":"0.02113625","3":"9.788637e-01","4":"Yes","5":"1273"},{"1":"No","2":"0.98728507","3":"1.271493e-02","4":"No","5":"1278"},{"1":"No","2":"0.92172362","3":"7.827638e-02","4":"No","5":"1306"},{"1":"No","2":"0.99481548","3":"5.184522e-03","4":"No","5":"1317"},{"1":"Yes","2":"0.18902677","3":"8.109732e-01","4":"Yes","5":"1318"},{"1":"No","2":"0.99588212","3":"4.117878e-03","4":"No","5":"1338"},{"1":"No","2":"0.99799861","3":"2.001392e-03","4":"No","5":"1346"},{"1":"No","2":"0.98846733","3":"1.153267e-02","4":"No","5":"1349"},{"1":"No","2":"0.94159635","3":"5.840365e-02","4":"No","5":"1350"},{"1":"Yes","2":"0.25906042","3":"7.409396e-01","4":"Yes","5":"1379"},{"1":"Yes","2":"0.58757919","3":"4.124208e-01","4":"No","5":"1403"},{"1":"No","2":"0.86970846","3":"1.302915e-01","4":"No","5":"1431"},{"1":"No","2":"0.97672624","3":"2.327376e-02","4":"No","5":"1435"},{"1":"No","2":"0.94806855","3":"5.193145e-02","4":"No","5":"1440"},{"1":"No","2":"0.96870727","3":"3.129273e-02","4":"No","5":"1465"},{"1":"Yes","2":"0.68402417","3":"3.159758e-01","4":"No","5":"1466"},{"1":"No","2":"0.89571743","3":"1.042826e-01","4":"No","5":"1481"},{"1":"No","2":"0.96925573","3":"3.074427e-02","4":"No","5":"1482"},{"1":"No","2":"0.99779446","3":"2.205535e-03","4":"No","5":"1485"},{"1":"Yes","2":"0.08486372","3":"9.151363e-01","4":"Yes","5":"1504"},{"1":"No","2":"0.89254278","3":"1.074572e-01","4":"No","5":"1507"},{"1":"No","2":"0.88568940","3":"1.143106e-01","4":"No","5":"1513"},{"1":"Yes","2":"0.34758840","3":"6.524116e-01","4":"Yes","5":"1522"},{"1":"Yes","2":"0.56465607","3":"4.353439e-01","4":"Yes","5":"1534"},{"1":"No","2":"0.78520062","3":"2.147994e-01","4":"Yes","5":"1537"},{"1":"No","2":"0.98476287","3":"1.523713e-02","4":"No","5":"1543"},{"1":"No","2":"0.89310513","3":"1.068949e-01","4":"No","5":"1547"},{"1":"No","2":"0.95062519","3":"4.937481e-02","4":"No","5":"1563"},{"1":"No","2":"0.99083372","3":"9.166281e-03","4":"No","5":"1578"},{"1":"No","2":"0.99272599","3":"7.274009e-03","4":"No","5":"1601"},{"1":"Yes","2":"0.36412647","3":"6.358735e-01","4":"Yes","5":"1604"},{"1":"No","2":"0.85202181","3":"1.479782e-01","4":"No","5":"1612"},{"1":"No","2":"0.99828650","3":"1.713495e-03","4":"No","5":"1615"},{"1":"Yes","2":"0.08465947","3":"9.153405e-01","4":"Yes","5":"1624"},{"1":"No","2":"0.98993015","3":"1.006985e-02","4":"No","5":"1633"},{"1":"No","2":"0.99996603","3":"3.397087e-05","4":"No","5":"1635"},{"1":"No","2":"0.99825684","3":"1.743159e-03","4":"No","5":"1638"},{"1":"Yes","2":"0.10342551","3":"8.965745e-01","4":"Yes","5":"1645"},{"1":"No","2":"0.87077525","3":"1.292247e-01","4":"No","5":"1647"},{"1":"No","2":"0.98300756","3":"1.699244e-02","4":"No","5":"1682"},{"1":"No","2":"0.90413886","3":"9.586114e-02","4":"Yes","5":"1691"},{"1":"No","2":"0.99016736","3":"9.832637e-03","4":"No","5":"1697"},{"1":"No","2":"0.98771028","3":"1.228972e-02","4":"No","5":"1724"},{"1":"No","2":"0.99830502","3":"1.694979e-03","4":"No","5":"1732"},{"1":"No","2":"0.99870054","3":"1.299461e-03","4":"No","5":"1771"},{"1":"No","2":"0.88680372","3":"1.131963e-01","4":"Yes","5":"1783"},{"1":"Yes","2":"0.66200145","3":"3.379986e-01","4":"No","5":"1790"},{"1":"Yes","2":"0.39455912","3":"6.054409e-01","4":"Yes","5":"1797"},{"1":"No","2":"0.99278942","3":"7.210580e-03","4":"No","5":"1798"},{"1":"No","2":"0.98145580","3":"1.854420e-02","4":"No","5":"1803"},{"1":"No","2":"0.91475291","3":"8.524709e-02","4":"No","5":"1813"},{"1":"No","2":"0.82480258","3":"1.751974e-01","4":"Yes","5":"1818"},{"1":"No","2":"0.99782866","3":"2.171337e-03","4":"No","5":"1854"},{"1":"No","2":"0.99934143","3":"6.585650e-04","4":"No","5":"1863"},{"1":"No","2":"0.91886670","3":"8.113330e-02","4":"No","5":"1883"},{"1":"No","2":"0.99374791","3":"6.252095e-03","4":"No","5":"1898"},{"1":"No","2":"0.98100537","3":"1.899463e-02","4":"No","5":"1918"},{"1":"No","2":"0.98530935","3":"1.469065e-02","4":"No","5":"1922"},{"1":"Yes","2":"0.42360767","3":"5.763923e-01","4":"Yes","5":"1928"},{"1":"No","2":"0.99956639","3":"4.336128e-04","4":"No","5":"1937"},{"1":"No","2":"0.99839203","3":"1.607971e-03","4":"No","5":"1941"},{"1":"No","2":"0.99609185","3":"3.908149e-03","4":"No","5":"1947"},{"1":"No","2":"0.93273962","3":"6.726038e-02","4":"No","5":"1948"},{"1":"No","2":"0.89568460","3":"1.043154e-01","4":"No","5":"1950"},{"1":"No","2":"0.98728699","3":"1.271301e-02","4":"No","5":"1951"},{"1":"Yes","2":"0.30634717","3":"6.936528e-01","4":"Yes","5":"1967"},{"1":"No","2":"0.99697866","3":"3.021343e-03","4":"No","5":"1979"},{"1":"No","2":"0.99698541","3":"3.014588e-03","4":"No","5":"1989"},{"1":"Yes","2":"0.72389933","3":"2.761007e-01","4":"No","5":"1994"},{"1":"No","2":"0.89363886","3":"1.063611e-01","4":"No","5":"1998"},{"1":"No","2":"0.99821945","3":"1.780546e-03","4":"No","5":"2019"},{"1":"No","2":"0.99741046","3":"2.589537e-03","4":"No","5":"2041"},{"1":"No","2":"0.97159237","3":"2.840763e-02","4":"No","5":"2068"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="do">## # A tibble: 220 x 5</span></span>
+<span id="cb38-2"><a href="#cb38-2"></a><span class="do">##    predict    No    Yes Attrition EmployeeNumber</span></span>
+<span id="cb38-3"><a href="#cb38-3"></a><span class="do">##    &lt;fct&gt;   &lt;dbl&gt;  &lt;dbl&gt; &lt;fct&gt;              &lt;dbl&gt;</span></span>
+<span id="cb38-4"><a href="#cb38-4"></a><span class="do">##  1 Yes     0.363 0.637  Yes                    1</span></span>
+<span id="cb38-5"><a href="#cb38-5"></a><span class="do">##  2 No      0.863 0.137  No                    15</span></span>
+<span id="cb38-6"><a href="#cb38-6"></a><span class="do">##  3 No      0.963 0.0374 No                    20</span></span>
+<span id="cb38-7"><a href="#cb38-7"></a><span class="do">##  4 No      0.868 0.132  No                    21</span></span>
+<span id="cb38-8"><a href="#cb38-8"></a><span class="do">##  5 No      0.952 0.0483 No                    38</span></span>
+<span id="cb38-9"><a href="#cb38-9"></a><span class="do">##  6 No      0.808 0.192  No                    49</span></span>
+<span id="cb38-10"><a href="#cb38-10"></a><span class="do">##  7 No      0.930 0.0696 No                    54</span></span>
+<span id="cb38-11"><a href="#cb38-11"></a><span class="do">##  8 Yes     0.559 0.441  No                    61</span></span>
+<span id="cb38-12"><a href="#cb38-12"></a><span class="do">##  9 Yes     0.412 0.588  No                    62</span></span>
+<span id="cb38-13"><a href="#cb38-13"></a><span class="do">## 10 No      0.936 0.0640 No                    70</span></span>
+<span id="cb38-14"><a href="#cb38-14"></a><span class="do">## # … with 210 more rows</span></span>
+<span id="cb38-15"><a href="#cb38-15"></a></span>
+<span id="cb38-16"><a href="#cb38-16"></a></span>
+<span id="cb38-17"><a href="#cb38-17"></a></span>
+<span id="cb38-18"><a href="#cb38-18"></a>test_tbl <span class="sc">%&gt;%</span></span>
+<span id="cb38-19"><a href="#cb38-19"></a>  <span class="fu">slice</span>(<span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb38-20"><a href="#cb38-20"></a>  <span class="fu">glimpse</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; Rows: 1
+#&gt; Columns: 32
+#&gt; $ Age                      &lt;dbl&gt; 59
+#&gt; $ BusinessTravel           &lt;fct&gt; Travel_Rarely
+#&gt; $ DailyRate                &lt;dbl&gt; 1324
+#&gt; $ Department               &lt;fct&gt; Research &amp; Development
+#&gt; $ DistanceFromHome         &lt;dbl&gt; 3
+#&gt; $ Education                &lt;fct&gt; Bachelor
+#&gt; $ EducationField           &lt;fct&gt; Medical
+#&gt; $ EmployeeNumber           &lt;dbl&gt; 10
+#&gt; $ EnvironmentSatisfaction  &lt;fct&gt; High
+#&gt; $ Gender                   &lt;fct&gt; Female
+#&gt; $ HourlyRate               &lt;dbl&gt; 81
+#&gt; $ JobInvolvement           &lt;fct&gt; Very High
+#&gt; $ JobLevel                 &lt;fct&gt; 1
+#&gt; $ JobRole                  &lt;fct&gt; Laboratory Technician
+#&gt; $ JobSatisfaction          &lt;fct&gt; Low
+#&gt; $ MaritalStatus            &lt;fct&gt; Married
+#&gt; $ MonthlyIncome            &lt;dbl&gt; 2670
+#&gt; $ MonthlyRate              &lt;dbl&gt; 9964
+#&gt; $ NumCompaniesWorked       &lt;dbl&gt; 4
+#&gt; $ OverTime                 &lt;fct&gt; Yes
+#&gt; $ PercentSalaryHike        &lt;dbl&gt; 20
+#&gt; $ PerformanceRating        &lt;fct&gt; Outstanding
+#&gt; $ RelationshipSatisfaction &lt;fct&gt; Low
+#&gt; $ StockOptionLevel         &lt;fct&gt; 3
+#&gt; $ TotalWorkingYears        &lt;dbl&gt; 12
+#&gt; $ TrainingTimesLastYear    &lt;dbl&gt; 3
+#&gt; $ WorkLifeBalance          &lt;fct&gt; Good
+#&gt; $ YearsAtCompany           &lt;dbl&gt; 1
+#&gt; $ YearsInCurrentRole       &lt;dbl&gt; 0
+#&gt; $ YearsSinceLastPromotion  &lt;dbl&gt; 0
+#&gt; $ YearsWithCurrManager     &lt;dbl&gt; 0
+#&gt; $ Attrition                &lt;fct&gt; No</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a><span class="co"># 3.2 Single Explanation ----</span></span>
+<span id="cb40-2"><a href="#cb40-2"></a></span>
+<span id="cb40-3"><a href="#cb40-3"></a>explainer <span class="ot">&lt;-</span> train_tbl <span class="sc">%&gt;%</span></span>
+<span id="cb40-4"><a href="#cb40-4"></a>  <span class="fu">select</span>(<span class="sc">-</span>Attrition) <span class="sc">%&gt;%</span></span>
+<span id="cb40-5"><a href="#cb40-5"></a>  <span class="fu">lime</span>(</span>
+<span id="cb40-6"><a href="#cb40-6"></a>    <span class="at">model           =</span> automl_leader,</span>
+<span id="cb40-7"><a href="#cb40-7"></a>    <span class="at">bin_continuous  =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb40-8"><a href="#cb40-8"></a>    <span class="at">n_bins          =</span> <span class="dv">4</span>,</span>
+<span id="cb40-9"><a href="#cb40-9"></a>    <span class="at">quantile_bins   =</span> <span class="cn">TRUE</span></span>
+<span id="cb40-10"><a href="#cb40-10"></a>  )</span>
+<span id="cb40-11"><a href="#cb40-11"></a></span>
+<span id="cb40-12"><a href="#cb40-12"></a>explainer</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; $model
+#&gt; Model Details:
+#&gt; ==============
+#&gt; 
+#&gt; H2OBinomialModel: deeplearning
+#&gt; Model ID:  DeepLearning_grid_1_AutoML_4_20230602_180322_model_1 
+#&gt; Status of Neuron Layers: predicting Attrition, 2-class classification, bernoulli distribution, CrossEntropy loss, 1,962 weights/biases, 33.3 KB, 9,361 training samples, mini-batch size 1
+#&gt;   layer units             type dropout       l1       l2 mean_rate rate_rms
+#&gt; 1     1    95            Input  5.00 %       NA       NA        NA       NA
+#&gt; 2     2    20 RectifierDropout  0.00 % 0.000000 0.000000  0.170886 0.383407
+#&gt; 3     3     2          Softmax      NA 0.000000 0.000000  0.001443 0.000402
+#&gt;   momentum mean_weight weight_rms mean_bias bias_rms
+#&gt; 1       NA          NA         NA        NA       NA
+#&gt; 2 0.000000   -0.003411   0.125273  0.476819 0.061770
+#&gt; 3 0.000000    0.099604   1.249723 -0.003959 0.016723
+#&gt; 
+#&gt; 
+#&gt; H2OBinomialMetrics: deeplearning
+#&gt; ** Reported on training data. **
+#&gt; ** Metrics reported on full training frame **
+#&gt; 
+#&gt; MSE:  0.06325354
+#&gt; RMSE:  0.2515026
+#&gt; LogLoss:  0.2330783
+#&gt; Mean Per-Class Error:  0.1826679
+#&gt; AUC:  0.9095887
+#&gt; AUCPR:  0.7782235
+#&gt; Gini:  0.8191774
+#&gt; 
+#&gt; Confusion Matrix (vertical: actual; across: predicted) for F1-optimal threshold:
+#&gt;         No Yes    Error      Rate
+#&gt; No     876  33 0.036304   =33/909
+#&gt; Yes     51 104 0.329032   =51/155
+#&gt; Totals 927 137 0.078947  =84/1064
+#&gt; 
+#&gt; Maximum Metrics: Maximum metrics at their respective thresholds
+#&gt;                         metric threshold      value idx
+#&gt; 1                       max f1  0.316158   0.712329 129
+#&gt; 2                       max f2  0.128333   0.738832 210
+#&gt; 3                 max f0point5  0.523563   0.787476  87
+#&gt; 4                 max accuracy  0.424451   0.923872 102
+#&gt; 5                max precision  0.989375   1.000000   0
+#&gt; 6                   max recall  0.000215   1.000000 398
+#&gt; 7              max specificity  0.989375   1.000000   0
+#&gt; 8             max absolute_mcc  0.316158   0.668485 129
+#&gt; 9   max min_per_class_accuracy  0.111544   0.838710 221
+#&gt; 10 max mean_per_class_accuracy  0.128333   0.847922 210
+#&gt; 11                     max tns  0.989375 909.000000   0
+#&gt; 12                     max fns  0.989375 153.000000   0
+#&gt; 13                     max fps  0.000082 909.000000 399
+#&gt; 14                     max tps  0.000215 155.000000 398
+#&gt; 15                     max tnr  0.989375   1.000000   0
+#&gt; 16                     max fnr  0.989375   0.987097   0
+#&gt; 17                     max fpr  0.000082   1.000000 399
+#&gt; 18                     max tpr  0.000215   1.000000 398
+#&gt; 
+#&gt; Gains/Lift Table: Extract with `h2o.gainsLift(&lt;model&gt;, &lt;data&gt;)` or `h2o.gainsLift(&lt;model&gt;, valid=&lt;T/F&gt;, xval=&lt;T/F&gt;)`
+#&gt; H2OBinomialMetrics: deeplearning
+#&gt; ** Reported on validation data. **
+#&gt; ** Metrics reported on full validation frame **
+#&gt; 
+#&gt; MSE:  0.1094026
+#&gt; RMSE:  0.3307607
+#&gt; LogLoss:  0.3706395
+#&gt; Mean Per-Class Error:  0.2123165
+#&gt; AUC:  0.8605442
+#&gt; AUCPR:  0.6788407
+#&gt; Gini:  0.7210884
+#&gt; 
+#&gt; Confusion Matrix (vertical: actual; across: predicted) for F1-optimal threshold:
+#&gt;         No Yes    Error     Rate
+#&gt; No     131  16 0.108844  =16/147
+#&gt; Yes     12  26 0.315789   =12/38
+#&gt; Totals 143  42 0.151351  =28/185
+#&gt; 
+#&gt; Maximum Metrics: Maximum metrics at their respective thresholds
+#&gt;                         metric threshold      value idx
+#&gt; 1                       max f1  0.260408   0.650000  41
+#&gt; 2                       max f2  0.045290   0.708333  87
+#&gt; 3                 max f0point5  0.349158   0.676471  32
+#&gt; 4                 max accuracy  0.349158   0.864865  32
+#&gt; 5                max precision  0.993065   1.000000   0
+#&gt; 6                   max recall  0.003745   1.000000 148
+#&gt; 7              max specificity  0.993065   1.000000   0
+#&gt; 8             max absolute_mcc  0.349158   0.566940  32
+#&gt; 9   max min_per_class_accuracy  0.127582   0.763158  61
+#&gt; 10 max mean_per_class_accuracy  0.260408   0.787683  41
+#&gt; 11                     max tns  0.993065 147.000000   0
+#&gt; 12                     max fns  0.993065  37.000000   0
+#&gt; 13                     max fps  0.000028 147.000000 184
+#&gt; 14                     max tps  0.003745  38.000000 148
+#&gt; 15                     max tnr  0.993065   1.000000   0
+#&gt; 16                     max fnr  0.993065   0.973684   0
+#&gt; 17                     max fpr  0.000028   1.000000 184
+#&gt; 18                     max tpr  0.003745   1.000000 148
+#&gt; 
+#&gt; Gains/Lift Table: Extract with `h2o.gainsLift(&lt;model&gt;, &lt;data&gt;)` or `h2o.gainsLift(&lt;model&gt;, valid=&lt;T/F&gt;, xval=&lt;T/F&gt;)`
+#&gt; H2OBinomialMetrics: deeplearning
+#&gt; ** Reported on cross-validation data. **
+#&gt; ** 5-fold cross-validation on training data (Metrics computed for combined holdout predictions) **
+#&gt; 
+#&gt; MSE:  0.1258809
+#&gt; RMSE:  0.354797
+#&gt; LogLoss:  0.6982145
+#&gt; Mean Per-Class Error:  0.2820327
+#&gt; AUC:  0.7880301
+#&gt; AUCPR:  0.4484105
+#&gt; Gini:  0.5760602
+#&gt; 
+#&gt; Confusion Matrix (vertical: actual; across: predicted) for F1-optimal threshold:
+#&gt;         No Yes    Error       Rate
+#&gt; No     754 155 0.170517   =155/909
+#&gt; Yes     61  94 0.393548    =61/155
+#&gt; Totals 815 249 0.203008  =216/1064
+#&gt; 
+#&gt; Maximum Metrics: Maximum metrics at their respective thresholds
+#&gt;                         metric threshold      value idx
+#&gt; 1                       max f1  0.043324   0.465347 237
+#&gt; 2                       max f2  0.002429   0.598039 349
+#&gt; 3                 max f0point5  0.715257   0.508806  80
+#&gt; 4                 max accuracy  0.715257   0.868421  80
+#&gt; 5                max precision  0.999992   1.000000   0
+#&gt; 6                   max recall  0.000000   1.000000 399
+#&gt; 7              max specificity  0.999992   1.000000   0
+#&gt; 8             max absolute_mcc  0.687441   0.378371  85
+#&gt; 9   max min_per_class_accuracy  0.007394   0.735484 310
+#&gt; 10 max mean_per_class_accuracy  0.007394   0.744530 310
+#&gt; 11                     max tns  0.999992 909.000000   0
+#&gt; 12                     max fns  0.999992 151.000000   0
+#&gt; 13                     max fps  0.000000 909.000000 399
+#&gt; 14                     max tps  0.000000 155.000000 399
+#&gt; 15                     max tnr  0.999992   1.000000   0
+#&gt; 16                     max fnr  0.999992   0.974194   0
+#&gt; 17                     max fpr  0.000000   1.000000 399
+#&gt; 18                     max tpr  0.000000   1.000000 399
+#&gt; 
+#&gt; Gains/Lift Table: Extract with `h2o.gainsLift(&lt;model&gt;, &lt;data&gt;)` or `h2o.gainsLift(&lt;model&gt;, valid=&lt;T/F&gt;, xval=&lt;T/F&gt;)`
+#&gt; Cross-Validation Metrics Summary: 
+#&gt;                              mean       sd cv_1_valid cv_2_valid cv_3_valid
+#&gt; accuracy                 0.855235 0.024053   0.859155   0.892019   0.849765
+#&gt; auc                      0.805798 0.039807   0.739318   0.823694   0.814328
+#&gt; err                      0.144765 0.024053   0.140845   0.107981   0.150235
+#&gt; err_count               30.800000 5.069517  30.000000  23.000000  32.000000
+#&gt; f0point5                 0.522850 0.092704   0.454545   0.671642   0.550459
+#&gt; f1                       0.532978 0.076841   0.423077   0.610170   0.600000
+#&gt; f2                       0.555967 0.110224   0.395683   0.559006   0.659341
+#&gt; lift_top_group           5.940102 2.056993   2.448276   6.264706   6.264706
+#&gt; logloss                  0.414162 0.042010   0.459008   0.393668   0.401740
+#&gt; max_per_class_error      0.418298 0.159580   0.620690   0.470588   0.294118
+#&gt; mcc                      0.461740 0.084063   0.347077   0.557935   0.518896
+#&gt; mean_per_class_accuracy  0.742031 0.060409   0.657046   0.745153   0.791489
+#&gt; mean_per_class_error     0.257969 0.060409   0.342954   0.254847   0.208511
+#&gt; mse                      0.103424 0.003140   0.107143   0.098660   0.102990
+#&gt; pr_auc                   0.520403 0.080464   0.390518   0.580461   0.592620
+#&gt; precision                0.521739 0.118804   0.478261   0.720000   0.521739
+#&gt; r2                       0.162364 0.085318   0.089024   0.264524   0.232246
+#&gt; recall                   0.581702 0.159580   0.379310   0.529412   0.705882
+#&gt; rmse                     0.321566 0.004899   0.327327   0.314102   0.320920
+#&gt; specificity              0.902359 0.050059   0.934783   0.960894   0.877095
+#&gt;                         cv_4_valid cv_5_valid
+#&gt; accuracy                  0.849765   0.825472
+#&gt; auc                       0.806806   0.844845
+#&gt; err                       0.150235   0.174528
+#&gt; err_count                32.000000  37.000000
+#&gt; f0point5                  0.490798   0.446809
+#&gt; f1                        0.500000   0.531646
+#&gt; f2                        0.509554   0.656250
+#&gt; lift_top_group            6.870968   7.851852
+#&gt; logloss                   0.455116   0.361278
+#&gt; max_per_class_error       0.483871   0.222222
+#&gt; mcc                       0.411982   0.472809
+#&gt; mean_per_class_accuracy   0.711361   0.805105
+#&gt; mean_per_class_error      0.288639   0.194895
+#&gt; mse                       0.105067   0.103259
+#&gt; pr_auc                    0.509142   0.529274
+#&gt; precision                 0.484849   0.403846
+#&gt; r2                        0.155127   0.070901
+#&gt; recall                    0.516129   0.777778
+#&gt; rmse                      0.324140   0.321339
+#&gt; specificity               0.906593   0.832432
+#&gt; 
+#&gt; $preprocess
+#&gt; function (x) 
+#&gt; x
+#&gt; &lt;bytecode: 0x000002dd39d6d538&gt;
+#&gt; &lt;environment: 0x000002dd39d61740&gt;
+#&gt; 
+#&gt; $bin_continuous
+#&gt; [1] TRUE
+#&gt; 
+#&gt; $n_bins
+#&gt; [1] 4
+#&gt; 
+#&gt; $quantile_bins
+#&gt; [1] TRUE
+#&gt; 
+#&gt; $use_density
+#&gt; [1] TRUE
+#&gt; 
+#&gt; $feature_type
+#&gt;                      Age           BusinessTravel                DailyRate 
+#&gt;                "numeric"                 "factor"                "numeric" 
+#&gt;               Department         DistanceFromHome                Education 
+#&gt;                 "factor"                "numeric"                 "factor" 
+#&gt;           EducationField           EmployeeNumber  EnvironmentSatisfaction 
+#&gt;                 "factor"                "numeric"                 "factor" 
+#&gt;                   Gender               HourlyRate           JobInvolvement 
+#&gt;                 "factor"                "numeric"                 "factor" 
+#&gt;                 JobLevel                  JobRole          JobSatisfaction 
+#&gt;                 "factor"                 "factor"                 "factor" 
+#&gt;            MaritalStatus            MonthlyIncome              MonthlyRate 
+#&gt;                 "factor"                "numeric"                "numeric" 
+#&gt;       NumCompaniesWorked                 OverTime        PercentSalaryHike 
+#&gt;                "numeric"                 "factor"                "numeric" 
+#&gt;        PerformanceRating RelationshipSatisfaction         StockOptionLevel 
+#&gt;                 "factor"                 "factor"                 "factor" 
+#&gt;        TotalWorkingYears    TrainingTimesLastYear          WorkLifeBalance 
+#&gt;                "numeric"                "numeric"                 "factor" 
+#&gt;           YearsAtCompany       YearsInCurrentRole  YearsSinceLastPromotion 
+#&gt;                "numeric"                "numeric"                "numeric" 
+#&gt;     YearsWithCurrManager 
+#&gt;                "numeric" 
+#&gt; 
+#&gt; $bin_cuts
+#&gt; $bin_cuts$Age
+#&gt;   0%  25%  50%  75% 100% 
+#&gt;   18   30   36   43   60 
+#&gt; 
+#&gt; $bin_cuts$BusinessTravel
+#&gt; NULL
+#&gt; 
+#&gt; $bin_cuts$DailyRate
+#&gt;   0%  25%  50%  75% 100% 
+#&gt;  102  465  797 1147 1499 
+#&gt; 
+#&gt; $bin_cuts$Department
+#&gt; NULL
+#&gt; 
+#&gt; $bin_cuts$DistanceFromHome
+#&gt;   0%  25%  50%  75% 100% 
+#&gt;    1    2    7   14   29 
+#&gt; 
+#&gt; $bin_cuts$Education
+#&gt; NULL
+#&gt; 
+#&gt; $bin_cuts$EducationField
+#&gt; NULL
+#&gt; 
+#&gt; $bin_cuts$EmployeeNumber
+#&gt;   0%  25%  50%  75% 100% 
+#&gt;    1  511 1040 1573 2065 
+#&gt; 
+#&gt; $bin_cuts$EnvironmentSatisfaction
+#&gt; NULL
+#&gt; 
+#&gt; $bin_cuts$Gender
+#&gt; NULL
+#&gt; 
+#&gt; $bin_cuts$HourlyRate
+#&gt;   0%  25%  50%  75% 100% 
+#&gt;   30   49   66   83  100 
+#&gt; 
+#&gt; $bin_cuts$JobInvolvement
+#&gt; NULL
+#&gt; 
+#&gt; $bin_cuts$JobLevel
+#&gt; NULL
+#&gt; 
+#&gt; $bin_cuts$JobRole
+#&gt; NULL
+#&gt; 
+#&gt; $bin_cuts$JobSatisfaction
+#&gt; NULL
+#&gt; 
+#&gt; $bin_cuts$MaritalStatus
+#&gt; NULL
+#&gt; 
+#&gt; $bin_cuts$MonthlyIncome
+#&gt;    0%   25%   50%   75%  100% 
+#&gt;  1051  2929  4908  8474 19999 
+#&gt; 
+#&gt; $bin_cuts$MonthlyRate
+#&gt;    0%   25%   50%   75%  100% 
+#&gt;  2094  8423 14470 20689 26968 
+#&gt; 
+#&gt; $bin_cuts$NumCompaniesWorked
+#&gt;   0%  25%  50%  75% 100% 
+#&gt;    0    1    2    4    9 
+#&gt; 
+#&gt; $bin_cuts$OverTime
+#&gt; NULL
+#&gt; 
+#&gt; $bin_cuts$PercentSalaryHike
+#&gt;   0%  25%  50%  75% 100% 
+#&gt;   11   12   14   18   25 
+#&gt; 
+#&gt; $bin_cuts$PerformanceRating
+#&gt; NULL
+#&gt; 
+#&gt; $bin_cuts$RelationshipSatisfaction
+#&gt; NULL
+#&gt; 
+#&gt; $bin_cuts$StockOptionLevel
+#&gt; NULL
+#&gt; 
+#&gt; $bin_cuts$TotalWorkingYears
+#&gt;   0%  25%  50%  75% 100% 
+#&gt;    0    6   10   15   38 
+#&gt; 
+#&gt; $bin_cuts$TrainingTimesLastYear
+#&gt;   0%  25%  50% 100% 
+#&gt;    0    2    3    6 
+#&gt; 
+#&gt; $bin_cuts$WorkLifeBalance
+#&gt; NULL
+#&gt; 
+#&gt; $bin_cuts$YearsAtCompany
+#&gt;   0%  25%  50%  75% 100% 
+#&gt;    0    3    5    9   37 
+#&gt; 
+#&gt; $bin_cuts$YearsInCurrentRole
+#&gt;   0%  25%  50%  75% 100% 
+#&gt;    0    2    3    7   18 
+#&gt; 
+#&gt; $bin_cuts$YearsSinceLastPromotion
+#&gt;   0%  50%  75% 100% 
+#&gt;    0    1    2   15 
+#&gt; 
+#&gt; $bin_cuts$YearsWithCurrManager
+#&gt;   0%  25%  50%  75% 100% 
+#&gt;    0    2    3    7   17 
+#&gt; 
+#&gt; 
+#&gt; $feature_distribution
+#&gt; $feature_distribution$Age
+#&gt; 
+#&gt;         1         2         3         4 
+#&gt; 0.2602082 0.2834267 0.2217774 0.2345877 
+#&gt; 
+#&gt; $feature_distribution$BusinessTravel
+#&gt; 
+#&gt;        Non-Travel     Travel_Rarely Travel_Frequently 
+#&gt;         0.1000801         0.7181745         0.1817454 
+#&gt; 
+#&gt; $feature_distribution$DailyRate
+#&gt; 
+#&gt;         1         2         3         4 
+#&gt; 0.2514011 0.2489992 0.2497998 0.2497998 
+#&gt; 
+#&gt; $feature_distribution$Department
+#&gt; 
+#&gt;        Human Resources Research &amp; Development                  Sales 
+#&gt;             0.04323459             0.65092074             0.30584468 
+#&gt; 
+#&gt; $feature_distribution$DistanceFromHome
+#&gt; 
+#&gt;         1         2         3         4 
+#&gt; 0.2954363 0.2369896 0.2241793 0.2433947 
+#&gt; 
+#&gt; $feature_distribution$Education
+#&gt; 
+#&gt; Below College       College      Bachelor        Master        Doctor 
+#&gt;    0.11689351    0.18895116    0.38510809    0.27461970    0.03442754 
+#&gt; 
+#&gt; $feature_distribution$EducationField
+#&gt; 
+#&gt;  Human Resources    Life Sciences        Marketing          Medical 
+#&gt;       0.01761409       0.41793435       0.10888711       0.31144916 
+#&gt;            Other Technical Degree 
+#&gt;       0.05444355       0.08967174 
+#&gt; 
+#&gt; $feature_distribution$EmployeeNumber
+#&gt; 
+#&gt;         1         2         3         4 
+#&gt; 0.2506005 0.2497998 0.2497998 0.2497998 
+#&gt; 
+#&gt; $feature_distribution$EnvironmentSatisfaction
+#&gt; 
+#&gt;       Low    Medium      High Very High 
+#&gt; 0.1913531 0.1961569 0.3018415 0.3106485 
+#&gt; 
+#&gt; $feature_distribution$Gender
+#&gt; 
+#&gt;    Female      Male 
+#&gt; 0.4123299 0.5876701 
+#&gt; 
+#&gt; $feature_distribution$HourlyRate
+#&gt; 
+#&gt;         1         2         3         4 
+#&gt; 0.2618094 0.2473979 0.2449960 0.2457966 
+#&gt; 
+#&gt; $feature_distribution$JobInvolvement
+#&gt; 
+#&gt;        Low     Medium       High  Very High 
+#&gt; 0.05684548 0.25780624 0.58927142 0.09607686 
+#&gt; 
+#&gt; $feature_distribution$JobLevel
+#&gt; 
+#&gt;          1          2          3          4          5 
+#&gt; 0.36829464 0.36509207 0.14651721 0.07526021 0.04483587 
+#&gt; 
+#&gt; $feature_distribution$JobRole
+#&gt; 
+#&gt; Healthcare Representative           Human Resources     Laboratory Technician 
+#&gt;                0.08646918                0.03682946                0.18174540 
+#&gt;                   Manager    Manufacturing Director         Research Director 
+#&gt;                0.06885508                0.09927942                0.05924740 
+#&gt;        Research Scientist           Sales Executive      Sales Representative 
+#&gt;                0.18654924                0.22337870                0.05764612 
+#&gt; 
+#&gt; $feature_distribution$JobSatisfaction
+#&gt; 
+#&gt;       Low    Medium      High Very High 
+#&gt; 0.1873499 0.1985588 0.3018415 0.3122498 
+#&gt; 
+#&gt; $feature_distribution$MaritalStatus
+#&gt; 
+#&gt;    Single   Married  Divorced 
+#&gt; 0.3306645 0.4571657 0.2121697 
+#&gt; 
+#&gt; $feature_distribution$MonthlyIncome
+#&gt; 
+#&gt;         1         2         3         4 
+#&gt; 0.2506005 0.2497998 0.2497998 0.2497998 
+#&gt; 
+#&gt; $feature_distribution$MonthlyRate
+#&gt; 
+#&gt;         1         2         3         4 
+#&gt; 0.2506005 0.2497998 0.2497998 0.2497998 
+#&gt; 
+#&gt; $feature_distribution$NumCompaniesWorked
+#&gt; 
+#&gt;          1          2          3          4 
+#&gt; 0.48118495 0.09927942 0.20496397 0.21457166 
+#&gt; 
+#&gt; $feature_distribution$OverTime
+#&gt; 
+#&gt;        No       Yes 
+#&gt; 0.7165733 0.2834267 
+#&gt; 
+#&gt; $feature_distribution$PercentSalaryHike
+#&gt; 
+#&gt;         1         2         3         4 
+#&gt; 0.2866293 0.2738191 0.2289832 0.2105685 
+#&gt; 
+#&gt; $feature_distribution$PerformanceRating
+#&gt; 
+#&gt;         Low        Good   Excellent Outstanding 
+#&gt;   0.0000000   0.0000000   0.8414732   0.1585268 
+#&gt; 
+#&gt; $feature_distribution$RelationshipSatisfaction
+#&gt; 
+#&gt;       Low    Medium      High Very High 
+#&gt; 0.1889512 0.2161729 0.3018415 0.2930344 
+#&gt; 
+#&gt; $feature_distribution$StockOptionLevel
+#&gt; 
+#&gt;          0          1          2          3 
+#&gt; 0.43554844 0.40592474 0.10168135 0.05684548 
+#&gt; 
+#&gt; $feature_distribution$TotalWorkingYears
+#&gt; 
+#&gt;         1         2         3         4 
+#&gt; 0.3050440 0.3306645 0.1224980 0.2417934 
+#&gt; 
+#&gt; $feature_distribution$TrainingTimesLastYear
+#&gt; 
+#&gt;         1         2         3 
+#&gt; 0.4603683 0.3306645 0.2089672 
+#&gt; 
+#&gt; $feature_distribution$WorkLifeBalance
+#&gt; 
+#&gt;        Bad       Good     Better       Best 
+#&gt; 0.05204163 0.22497998 0.61889512 0.10408327 
+#&gt; 
+#&gt; $feature_distribution$YearsAtCompany
+#&gt; 
+#&gt;         1         2         3         4 
+#&gt; 0.3226581 0.2137710 0.2217774 0.2417934 
+#&gt; 
+#&gt; $feature_distribution$YearsInCurrentRole
+#&gt; 
+#&gt;          1          2          3          4 
+#&gt; 0.46757406 0.08726982 0.27542034 0.16973579 
+#&gt; 
+#&gt; $feature_distribution$YearsSinceLastPromotion
+#&gt; 
+#&gt;         1         2         3 
+#&gt; 0.6413131 0.1120897 0.2465973 
+#&gt; 
+#&gt; $feature_distribution$YearsWithCurrManager
+#&gt; 
+#&gt;          1          2          3          4 
+#&gt; 0.46357086 0.09767814 0.25300240 0.18574860 
+#&gt; 
+#&gt; 
+#&gt; attr(,"class")
+#&gt; [1] "data_frame_explainer" "explainer"            "list"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>explanation <span class="ot">&lt;-</span> test_tbl <span class="sc">%&gt;%</span></span>
+<span id="cb42-2"><a href="#cb42-2"></a>  <span class="fu">slice</span>(<span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb42-3"><a href="#cb42-3"></a>  <span class="fu">select</span>(<span class="sc">-</span>Attrition) <span class="sc">%&gt;%</span></span>
+<span id="cb42-4"><a href="#cb42-4"></a>  lime<span class="sc">::</span><span class="fu">explain</span>(</span>
+<span id="cb42-5"><a href="#cb42-5"></a>    </span>
+<span id="cb42-6"><a href="#cb42-6"></a>    <span class="co"># Pass our explainer object</span></span>
+<span id="cb42-7"><a href="#cb42-7"></a>    <span class="at">explainer =</span> explainer,</span>
+<span id="cb42-8"><a href="#cb42-8"></a>    <span class="co"># Because it is a binary classification model: 1</span></span>
+<span id="cb42-9"><a href="#cb42-9"></a>    <span class="at">n_labels   =</span> <span class="dv">1</span>,</span>
+<span id="cb42-10"><a href="#cb42-10"></a>    <span class="co"># number of features to be returned</span></span>
+<span id="cb42-11"><a href="#cb42-11"></a>    <span class="at">n_features =</span> <span class="dv">8</span>,</span>
+<span id="cb42-12"><a href="#cb42-12"></a>    <span class="co"># number of localized linear models</span></span>
+<span id="cb42-13"><a href="#cb42-13"></a>    <span class="at">n_permutations =</span> <span class="dv">5000</span>,</span>
+<span id="cb42-14"><a href="#cb42-14"></a>    <span class="co"># Let's start with 1</span></span>
+<span id="cb42-15"><a href="#cb42-15"></a>    <span class="at">kernel_width   =</span> <span class="dv">1</span></span>
+<span id="cb42-16"><a href="#cb42-16"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |======================================================================| 100%
+#&gt; 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |======================================================================| 100%</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>explanation</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["model_type"],"name":[1],"type":["chr"],"align":["left"]},{"label":["case"],"name":[2],"type":["chr"],"align":["left"]},{"label":["label"],"name":[3],"type":["chr"],"align":["left"]},{"label":["label_prob"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["model_r2"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["model_intercept"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["model_prediction"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["feature"],"name":[8],"type":["chr"],"align":["left"]},{"label":["feature_value"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["feature_weight"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["feature_desc"],"name":[11],"type":["chr"],"align":["left"]},{"label":["data"],"name":[12],"type":["list"],"align":["right"]},{"label":["prediction"],"name":[13],"type":["list"],"align":["right"]}],"data":[{"1":"classification","2":"1","3":"No","4":"0.7525759","5":"0.1945577","6":"0.8800533","7":"0.684028","8":"OverTime","9":"2","10":"-0.17586674","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.7525759","5":"0.1945577","6":"0.8800533","7":"0.684028","8":"YearsSinceLastPromotion","9":"0","10":"0.07450969","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.7525759","5":"0.1945577","6":"0.8800533","7":"0.684028","8":"JobSatisfaction","9":"1","10":"-0.07145778","11":"JobSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.7525759","5":"0.1945577","6":"0.8800533","7":"0.684028","8":"JobInvolvement","9":"4","10":"0.06867689","11":"JobInvolvement = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.7525759","5":"0.1945577","6":"0.8800533","7":"0.684028","8":"RelationshipSatisfaction","9":"1","10":"-0.05955153","11":"RelationshipSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.7525759","5":"0.1945577","6":"0.8800533","7":"0.684028","8":"Age","9":"59","10":"0.05906081","11":"43 < Age","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.7525759","5":"0.1945577","6":"0.8800533","7":"0.684028","8":"StockOptionLevel","9":"4","10":"-0.04772615","11":"StockOptionLevel = 3","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.7525759","5":"0.1945577","6":"0.8800533","7":"0.684028","8":"JobLevel","9":"1","10":"-0.04367047","11":"JobLevel = 1","12":"<named list [31]>","13":"<named list [2]>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a>explanation <span class="sc">%&gt;%</span></span>
+<span id="cb45-2"><a href="#cb45-2"></a>  <span class="fu">as.tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb45-3"><a href="#cb45-3"></a>  <span class="fu">select</span>(feature<span class="sc">:</span>prediction) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["feature"],"name":[1],"type":["chr"],"align":["left"]},{"label":["feature_value"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["feature_weight"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["feature_desc"],"name":[4],"type":["chr"],"align":["left"]},{"label":["data"],"name":[5],"type":["list"],"align":["right"]},{"label":["prediction"],"name":[6],"type":["list"],"align":["right"]}],"data":[{"1":"OverTime","2":"2","3":"-0.17586674","4":"OverTime = Yes","5":"<named list [31]>","6":"<named list [2]>"},{"1":"YearsSinceLastPromotion","2":"0","3":"0.07450969","4":"YearsSinceLastPromotion <= 1","5":"<named list [31]>","6":"<named list [2]>"},{"1":"JobSatisfaction","2":"1","3":"-0.07145778","4":"JobSatisfaction = Low","5":"<named list [31]>","6":"<named list [2]>"},{"1":"JobInvolvement","2":"4","3":"0.06867689","4":"JobInvolvement = Very High","5":"<named list [31]>","6":"<named list [2]>"},{"1":"RelationshipSatisfaction","2":"1","3":"-0.05955153","4":"RelationshipSatisfaction = Low","5":"<named list [31]>","6":"<named list [2]>"},{"1":"Age","2":"59","3":"0.05906081","4":"43 < Age","5":"<named list [31]>","6":"<named list [2]>"},{"1":"StockOptionLevel","2":"4","3":"-0.04772615","4":"StockOptionLevel = 3","5":"<named list [31]>","6":"<named list [2]>"},{"1":"JobLevel","2":"1","3":"-0.04367047","4":"JobLevel = 1","5":"<named list [31]>","6":"<named list [2]>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a>g <span class="ot">&lt;-</span> <span class="fu">plot_features</span>(<span class="at">explanation =</span> explanation, <span class="at">ncol =</span> <span class="dv">1</span>)</span>
+<span id="cb46-2"><a href="#cb46-2"></a></span>
+<span id="cb46-3"><a href="#cb46-3"></a>g</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure"><p><a href="Explaining_BB_Models_files/figure-html/unnamed-chunk-1-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="Explaining_BB_Models_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a><span class="co"># 3.3 Multiple Explanations ----</span></span>
+<span id="cb47-2"><a href="#cb47-2"></a></span>
+<span id="cb47-3"><a href="#cb47-3"></a>explanation <span class="ot">&lt;-</span> test_tbl <span class="sc">%&gt;%</span></span>
+<span id="cb47-4"><a href="#cb47-4"></a>  <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb47-5"><a href="#cb47-5"></a>  <span class="fu">select</span>(<span class="sc">-</span>Attrition) <span class="sc">%&gt;%</span></span>
+<span id="cb47-6"><a href="#cb47-6"></a>  lime<span class="sc">::</span><span class="fu">explain</span>(</span>
+<span id="cb47-7"><a href="#cb47-7"></a>    <span class="at">explainer =</span> explainer,</span>
+<span id="cb47-8"><a href="#cb47-8"></a>    <span class="at">n_labels   =</span> <span class="dv">1</span>,</span>
+<span id="cb47-9"><a href="#cb47-9"></a>    <span class="at">n_features =</span> <span class="dv">8</span>,</span>
+<span id="cb47-10"><a href="#cb47-10"></a>    <span class="at">n_permutations =</span> <span class="dv">5000</span>,</span>
+<span id="cb47-11"><a href="#cb47-11"></a>    <span class="at">kernel_width   =</span> <span class="fl">0.5</span></span>
+<span id="cb47-12"><a href="#cb47-12"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |======================================================================| 100%
+#&gt; 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |======================================================================| 100%</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a>explanation <span class="sc">%&gt;%</span></span>
+<span id="cb49-2"><a href="#cb49-2"></a>  <span class="fu">as.tibble</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["model_type"],"name":[1],"type":["chr"],"align":["left"]},{"label":["case"],"name":[2],"type":["chr"],"align":["left"]},{"label":["label"],"name":[3],"type":["chr"],"align":["left"]},{"label":["label_prob"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["model_r2"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["model_intercept"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["model_prediction"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["feature"],"name":[8],"type":["chr"],"align":["left"]},{"label":["feature_value"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["feature_weight"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["feature_desc"],"name":[11],"type":["chr"],"align":["left"]},{"label":["data"],"name":[12],"type":["list"],"align":["right"]},{"label":["prediction"],"name":[13],"type":["list"],"align":["right"]}],"data":[{"1":"classification","2":"1","3":"No","4":"0.7525759","5":"0.1807711","6":"0.84530390","7":"0.7202951","8":"OverTime","9":"2","10":"-0.18127264","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.7525759","5":"0.1807711","6":"0.84530390","7":"0.7202951","8":"JobSatisfaction","9":"1","10":"-0.06967230","11":"JobSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.7525759","5":"0.1807711","6":"0.84530390","7":"0.7202951","8":"YearsSinceLastPromotion","9":"0","10":"0.06797315","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.7525759","5":"0.1807711","6":"0.84530390","7":"0.7202951","8":"RelationshipSatisfaction","9":"1","10":"-0.06141728","11":"RelationshipSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.7525759","5":"0.1807711","6":"0.84530390","7":"0.7202951","8":"Age","9":"59","10":"0.05692224","11":"43 < Age","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.7525759","5":"0.1807711","6":"0.84530390","7":"0.7202951","8":"JobInvolvement","9":"4","10":"0.05753881","11":"JobInvolvement = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.7525759","5":"0.1807711","6":"0.84530390","7":"0.7202951","8":"BusinessTravel","9":"2","10":"0.04165369","11":"BusinessTravel = Travel_Rarely","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"1","3":"No","4":"0.7525759","5":"0.1807711","6":"0.84530390","7":"0.7202951","8":"WorkLifeBalance","9":"2","10":"-0.03673450","11":"WorkLifeBalance = Good","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.9103211","5":"0.2609130","6":"0.72981899","7":"0.7946544","8":"OverTime","9":"1","10":"0.18177348","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.9103211","5":"0.2609130","6":"0.72981899","7":"0.7946544","8":"YearsSinceLastPromotion","9":"4","10":"-0.08710027","11":"2 < YearsSinceLastPromotion","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.9103211","5":"0.2609130","6":"0.72981899","7":"0.7946544","8":"EnvironmentSatisfaction","9":"1","10":"-0.08176635","11":"EnvironmentSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.9103211","5":"0.2609130","6":"0.72981899","7":"0.7946544","8":"NumCompaniesWorked","9":"1","10":"0.07827512","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.9103211","5":"0.2609130","6":"0.72981899","7":"0.7946544","8":"TotalWorkingYears","9":"5","10":"-0.07410403","11":"TotalWorkingYears <= 6","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.9103211","5":"0.2609130","6":"0.72981899","7":"0.7946544","8":"DistanceFromHome","9":"26","10":"-0.06063976","11":"14 < DistanceFromHome","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.9103211","5":"0.2609130","6":"0.72981899","7":"0.7946544","8":"StockOptionLevel","9":"2","10":"0.05908441","11":"StockOptionLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"2","3":"No","4":"0.9103211","5":"0.2609130","6":"0.72981899","7":"0.7946544","8":"JobRole","9":"7","10":"0.04931278","11":"JobRole = Research Scientist","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.9081667","5":"0.2444189","6":"0.71986699","7":"0.8238970","8":"OverTime","9":"1","10":"0.18078667","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.9081667","5":"0.2444189","6":"0.71986699","7":"0.8238970","8":"StockOptionLevel","9":"1","10":"-0.08441061","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.9081667","5":"0.2444189","6":"0.71986699","7":"0.8238970","8":"YearsSinceLastPromotion","9":"0","10":"0.06889827","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.9081667","5":"0.2444189","6":"0.71986699","7":"0.8238970","8":"NumCompaniesWorked","9":"1","10":"0.06893434","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.9081667","5":"0.2444189","6":"0.71986699","7":"0.8238970","8":"TotalWorkingYears","9":"0","10":"-0.06777722","11":"TotalWorkingYears <= 6","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.9081667","5":"0.2444189","6":"0.71986699","7":"0.8238970","8":"Age","9":"21","10":"-0.05946070","11":"Age <= 30","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.9081667","5":"0.2444189","6":"0.71986699","7":"0.8238970","8":"DistanceFromHome","9":"15","10":"-0.05775117","11":"14 < DistanceFromHome","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"3","3":"No","4":"0.9081667","5":"0.2444189","6":"0.71986699","7":"0.8238970","8":"JobSatisfaction","9":"4","10":"0.05481043","11":"JobSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.7925434","5":"0.1994936","6":"0.69338264","7":"0.8767896","8":"OverTime","9":"1","10":"0.17506717","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.7925434","5":"0.1994936","6":"0.69338264","7":"0.8767896","8":"YearsSinceLastPromotion","9":"1","10":"0.07235567","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.7925434","5":"0.1994936","6":"0.69338264","7":"0.8767896","8":"JobSatisfaction","9":"1","10":"-0.07397401","11":"JobSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.7925434","5":"0.1994936","6":"0.69338264","7":"0.8767896","8":"StockOptionLevel","9":"1","10":"-0.06559780","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.7925434","5":"0.1994936","6":"0.69338264","7":"0.8767896","8":"JobRole","9":"7","10":"0.04651761","11":"JobRole = Research Scientist","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.7925434","5":"0.1994936","6":"0.69338264","7":"0.8767896","8":"TrainingTimesLastYear","9":"2","10":"-0.04001716","11":"TrainingTimesLastYear <= 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.7925434","5":"0.1994936","6":"0.69338264","7":"0.8767896","8":"WorkLifeBalance","9":"3","10":"0.03477023","11":"WorkLifeBalance = Better","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"4","3":"No","4":"0.7925434","5":"0.1994936","6":"0.69338264","7":"0.8767896","8":"BusinessTravel","9":"2","10":"0.03428524","11":"BusinessTravel = Travel_Rarely","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9949424","5":"0.2637374","6":"0.78703166","7":"0.9396531","8":"OverTime","9":"2","10":"-0.17622772","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9949424","5":"0.2637374","6":"0.78703166","7":"0.9396531","8":"JobLevel","9":"2","10":"0.10774774","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9949424","5":"0.2637374","6":"0.78703166","7":"0.9396531","8":"StockOptionLevel","9":"1","10":"-0.08132542","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9949424","5":"0.2637374","6":"0.78703166","7":"0.9396531","8":"YearsSinceLastPromotion","9":"1","10":"0.07397872","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9949424","5":"0.2637374","6":"0.78703166","7":"0.9396531","8":"JobSatisfaction","9":"4","10":"0.07343684","11":"JobSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9949424","5":"0.2637374","6":"0.78703166","7":"0.9396531","8":"EnvironmentSatisfaction","9":"4","10":"0.06430000","11":"EnvironmentSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9949424","5":"0.2637374","6":"0.78703166","7":"0.9396531","8":"TrainingTimesLastYear","9":"5","10":"0.04481392","11":"3 < TrainingTimesLastYear","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"5","3":"No","4":"0.9949424","5":"0.2637374","6":"0.78703166","7":"0.9396531","8":"DailyRate","9":"1459","10":"0.04589735","11":"1147 < DailyRate","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9967411","5":"0.2569399","6":"0.56395353","7":"1.1128268","8":"OverTime","9":"1","10":"0.17028072","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9967411","5":"0.2569399","6":"0.56395353","7":"1.1128268","8":"JobLevel","9":"2","10":"0.09002493","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9967411","5":"0.2569399","6":"0.56395353","7":"1.1128268","8":"TotalWorkingYears","9":"19","10":"0.08388081","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9967411","5":"0.2569399","6":"0.56395353","7":"1.1128268","8":"YearsSinceLastPromotion","9":"0","10":"0.07773421","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9967411","5":"0.2569399","6":"0.56395353","7":"1.1128268","8":"JobRole","9":"9","10":"-0.07251986","11":"JobRole = Sales Representative","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9967411","5":"0.2569399","6":"0.56395353","7":"1.1128268","8":"JobSatisfaction","9":"4","10":"0.06885546","11":"JobSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9967411","5":"0.2569399","6":"0.56395353","7":"1.1128268","8":"StockOptionLevel","9":"2","10":"0.06503585","11":"StockOptionLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"6","3":"No","4":"0.9967411","5":"0.2569399","6":"0.56395353","7":"1.1128268","8":"EnvironmentSatisfaction","9":"4","10":"0.06558112","11":"EnvironmentSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9995401","5":"0.2362002","6":"0.61618880","7":"1.1026787","8":"OverTime","9":"1","10":"0.18949704","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9995401","5":"0.2362002","6":"0.61618880","7":"1.1026787","8":"YearsSinceLastPromotion","9":"1","10":"0.07235688","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9995401","5":"0.2362002","6":"0.61618880","7":"1.1026787","8":"JobInvolvement","9":"4","10":"0.07031730","11":"JobInvolvement = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9995401","5":"0.2362002","6":"0.61618880","7":"1.1026787","8":"NumCompaniesWorked","9":"1","10":"0.06561142","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9995401","5":"0.2362002","6":"0.61618880","7":"1.1026787","8":"TotalWorkingYears","9":"6","10":"-0.06417636","11":"TotalWorkingYears <= 6","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9995401","5":"0.2362002","6":"0.61618880","7":"1.1026787","8":"EnvironmentSatisfaction","9":"4","10":"0.06175609","11":"EnvironmentSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9995401","5":"0.2362002","6":"0.61618880","7":"1.1026787","8":"DailyRate","9":"1273","10":"0.04757419","11":"1147 < DailyRate","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"7","3":"No","4":"0.9995401","5":"0.2362002","6":"0.61618880","7":"1.1026787","8":"JobRole","9":"7","10":"0.04355331","11":"JobRole = Research Scientist","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7878623","5":"0.2527844","6":"0.26030763","7":"0.3614065","8":"OverTime","9":"1","10":"-0.17961766","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7878623","5":"0.2527844","6":"0.26030763","7":"0.3614065","8":"JobInvolvement","9":"1","10":"0.12908479","11":"JobInvolvement = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7878623","5":"0.2527844","6":"0.26030763","7":"0.3614065","8":"EnvironmentSatisfaction","9":"1","10":"0.08202626","11":"EnvironmentSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7878623","5":"0.2527844","6":"0.26030763","7":"0.3614065","8":"TotalWorkingYears","9":"1","10":"0.07829286","11":"TotalWorkingYears <= 6","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7878623","5":"0.2527844","6":"0.26030763","7":"0.3614065","8":"StockOptionLevel","9":"1","10":"0.07498448","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7878623","5":"0.2527844","6":"0.26030763","7":"0.3614065","8":"YearsSinceLastPromotion","9":"0","10":"-0.07142716","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7878623","5":"0.2527844","6":"0.26030763","7":"0.3614065","8":"NumCompaniesWorked","9":"1","10":"-0.07111225","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"8","3":"Yes","4":"0.7878623","5":"0.2527844","6":"0.26030763","7":"0.3614065","8":"Age","9":"26","10":"0.05886758","11":"Age <= 30","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7464581","5":"0.2774265","6":"0.07830691","7":"0.3710953","8":"OverTime","9":"2","10":"0.18065501","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7464581","5":"0.2774265","6":"0.07830691","7":"0.3710953","8":"NumCompaniesWorked","9":"9","10":"0.10587312","11":"4 < NumCompaniesWorked","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7464581","5":"0.2774265","6":"0.07830691","7":"0.3710953","8":"EnvironmentSatisfaction","9":"1","10":"0.10133707","11":"EnvironmentSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7464581","5":"0.2774265","6":"0.07830691","7":"0.3710953","8":"TotalWorkingYears","9":"23","10":"-0.09366023","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7464581","5":"0.2774265","6":"0.07830691","7":"0.3710953","8":"StockOptionLevel","9":"1","10":"0.08077741","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7464581","5":"0.2774265","6":"0.07830691","7":"0.3710953","8":"YearsSinceLastPromotion","9":"0","10":"-0.07451668","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7464581","5":"0.2774265","6":"0.07830691","7":"0.3710953","8":"Age","9":"48","10":"-0.05215119","11":"43 < Age","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"9","3":"Yes","4":"0.7464581","5":"0.2774265","6":"0.07830691","7":"0.3710953","8":"YearsInCurrentRole","9":"0","10":"0.04447384","11":"YearsInCurrentRole <= 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9997955","5":"0.2689845","6":"0.61615164","7":"1.0328631","8":"OverTime","9":"1","10":"0.17864779","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9997955","5":"0.2689845","6":"0.61615164","7":"1.0328631","8":"JobLevel","9":"2","10":"0.10660241","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9997955","5":"0.2689845","6":"0.61615164","7":"1.0328631","8":"EnvironmentSatisfaction","9":"1","10":"-0.09188999","11":"EnvironmentSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9997955","5":"0.2689845","6":"0.61615164","7":"1.0328631","8":"YearsSinceLastPromotion","9":"0","10":"0.07387891","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9997955","5":"0.2689845","6":"0.61615164","7":"1.0328631","8":"NumCompaniesWorked","9":"1","10":"0.06831265","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9997955","5":"0.2689845","6":"0.61615164","7":"1.0328631","8":"StockOptionLevel","9":"2","10":"0.06293796","11":"StockOptionLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9997955","5":"0.2689845","6":"0.61615164","7":"1.0328631","8":"JobRole","9":"5","10":"0.05944794","11":"JobRole = Manufacturing Director","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"10","3":"No","4":"0.9997955","5":"0.2689845","6":"0.61615164","7":"1.0328631","8":"TrainingTimesLastYear","9":"2","10":"-0.04122623","11":"TrainingTimesLastYear <= 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.9805048","5":"0.2824852","6":"0.89527357","7":"0.6584567","8":"OverTime","9":"2","10":"-0.18905149","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.9805048","5":"0.2824852","6":"0.89527357","7":"0.6584567","8":"NumCompaniesWorked","9":"5","10":"-0.11671294","11":"4 < NumCompaniesWorked","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.9805048","5":"0.2824852","6":"0.89527357","7":"0.6584567","8":"YearsSinceLastPromotion","9":"13","10":"-0.10768701","11":"2 < YearsSinceLastPromotion","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.9805048","5":"0.2824852","6":"0.89527357","7":"0.6584567","8":"JobLevel","9":"5","10":"-0.11121796","11":"JobLevel = 5","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.9805048","5":"0.2824852","6":"0.89527357","7":"0.6584567","8":"TotalWorkingYears","9":"29","10":"0.09945417","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.9805048","5":"0.2824852","6":"0.89527357","7":"0.6584567","8":"StockOptionLevel","9":"2","10":"0.06950230","11":"StockOptionLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.9805048","5":"0.2824852","6":"0.89527357","7":"0.6584567","8":"JobRole","9":"6","10":"0.06271408","11":"JobRole = Research Director","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"11","3":"No","4":"0.9805048","5":"0.2824852","6":"0.89527357","7":"0.6584567","8":"Age","9":"50","10":"0.05618202","11":"43 < Age","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.8518938","5":"0.2337071","6":"0.70039306","7":"0.9446331","8":"OverTime","9":"1","10":"0.17735607","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.8518938","5":"0.2337071","6":"0.70039306","7":"0.9446331","8":"YearsSinceLastPromotion","9":"12","10":"-0.10697967","11":"2 < YearsSinceLastPromotion","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.8518938","5":"0.2337071","6":"0.70039306","7":"0.9446331","8":"TotalWorkingYears","9":"17","10":"0.08683146","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.8518938","5":"0.2337071","6":"0.70039306","7":"0.9446331","8":"NumCompaniesWorked","9":"1","10":"0.08006722","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.8518938","5":"0.2337071","6":"0.70039306","7":"0.9446331","8":"YearsInCurrentRole","9":"14","10":"0.05154954","11":"7 < YearsInCurrentRole","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.8518938","5":"0.2337071","6":"0.70039306","7":"0.9446331","8":"EducationField","9":"6","10":"-0.04341184","11":"EducationField = Technical Degree","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.8518938","5":"0.2337071","6":"0.70039306","7":"0.9446331","8":"TrainingTimesLastYear","9":"2","10":"-0.03902313","11":"TrainingTimesLastYear <= 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"12","3":"No","4":"0.8518938","5":"0.2337071","6":"0.70039306","7":"0.9446331","8":"DailyRate","9":"1223","10":"0.03785042","11":"1147 < DailyRate","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9508942","5":"0.2690277","6":"0.67438727","7":"0.9340651","8":"OverTime","9":"1","10":"0.18531863","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9508942","5":"0.2690277","6":"0.67438727","7":"0.9340651","8":"JobLevel","9":"2","10":"0.09299570","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9508942","5":"0.2690277","6":"0.67438727","7":"0.9340651","8":"StockOptionLevel","9":"1","10":"-0.07493145","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9508942","5":"0.2690277","6":"0.67438727","7":"0.9340651","8":"TotalWorkingYears","9":"6","10":"-0.06892061","11":"TotalWorkingYears <= 6","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9508942","5":"0.2690277","6":"0.67438727","7":"0.9340651","8":"NumCompaniesWorked","9":"1","10":"0.07026160","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9508942","5":"0.2690277","6":"0.67438727","7":"0.9340651","8":"BusinessTravel","9":"3","10":"-0.06883535","11":"BusinessTravel = Travel_Frequently","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9508942","5":"0.2690277","6":"0.67438727","7":"0.9340651","8":"YearsSinceLastPromotion","9":"0","10":"0.06737611","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"13","3":"No","4":"0.9508942","5":"0.2690277","6":"0.67438727","7":"0.9340651","8":"JobRole","9":"5","10":"0.05641320","11":"JobRole = Manufacturing Director","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9994974","5":"0.2207750","6":"0.57198588","7":"1.1405473","8":"OverTime","9":"1","10":"0.16605431","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9994974","5":"0.2207750","6":"0.57198588","7":"1.1405473","8":"JobLevel","9":"2","10":"0.09753581","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9994974","5":"0.2207750","6":"0.57198588","7":"1.1405473","8":"YearsSinceLastPromotion","9":"0","10":"0.06218604","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9994974","5":"0.2207750","6":"0.57198588","7":"1.1405473","8":"NumCompaniesWorked","9":"1","10":"0.05436944","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9994974","5":"0.2207750","6":"0.57198588","7":"1.1405473","8":"StockOptionLevel","9":"3","10":"0.05089976","11":"StockOptionLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9994974","5":"0.2207750","6":"0.57198588","7":"1.1405473","8":"JobRole","9":"7","10":"0.04945530","11":"JobRole = Research Scientist","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9994974","5":"0.2207750","6":"0.57198588","7":"1.1405473","8":"Department","9":"2","10":"0.04670176","11":"Department = Research & Development","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"14","3":"No","4":"0.9994974","5":"0.2207750","6":"0.57198588","7":"1.1405473","8":"WorkLifeBalance","9":"3","10":"0.04135900","11":"WorkLifeBalance = Better","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9775415","5":"0.2290548","6":"0.83950998","7":"0.8695884","8":"OverTime","9":"2","10":"-0.18386837","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9775415","5":"0.2290548","6":"0.83950998","7":"0.8695884","8":"JobLevel","9":"2","10":"0.09399077","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9775415","5":"0.2290548","6":"0.83950998","7":"0.8695884","8":"NumCompaniesWorked","9":"1","10":"0.07452547","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9775415","5":"0.2290548","6":"0.83950998","7":"0.8695884","8":"YearsInCurrentRole","9":"8","10":"0.05174440","11":"7 < YearsInCurrentRole","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9775415","5":"0.2290548","6":"0.83950998","7":"0.8695884","8":"Age","9":"30","10":"-0.05117806","11":"Age <= 30","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9775415","5":"0.2290548","6":"0.83950998","7":"0.8695884","8":"DailyRate","9":"1334","10":"0.04315426","11":"1147 < DailyRate","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9775415","5":"0.2290548","6":"0.83950998","7":"0.8695884","8":"JobRole","9":"8","10":"-0.04315095","11":"JobRole = Sales Executive","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"15","3":"No","4":"0.9775415","5":"0.2290548","6":"0.83950998","7":"0.8695884","8":"TrainingTimesLastYear","9":"4","10":"0.04486091","11":"3 < TrainingTimesLastYear","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.9042029","5":"0.2722133","6":"0.71758417","7":"0.8254724","8":"OverTime","9":"1","10":"0.17807743","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.9042029","5":"0.2722133","6":"0.71758417","7":"0.8254724","8":"YearsSinceLastPromotion","9":"5","10":"-0.10192703","11":"2 < YearsSinceLastPromotion","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.9042029","5":"0.2722133","6":"0.71758417","7":"0.8254724","8":"JobLevel","9":"2","10":"0.09010571","11":"JobLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.9042029","5":"0.2722133","6":"0.71758417","7":"0.8254724","8":"StockOptionLevel","9":"1","10":"-0.07245395","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.9042029","5":"0.2722133","6":"0.71758417","7":"0.8254724","8":"NumCompaniesWorked","9":"1","10":"0.06468514","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.9042029","5":"0.2722133","6":"0.71758417","7":"0.8254724","8":"RelationshipSatisfaction","9":"1","10":"-0.04954997","11":"RelationshipSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.9042029","5":"0.2722133","6":"0.71758417","7":"0.8254724","8":"JobRole","9":"8","10":"-0.04692088","11":"JobRole = Sales Executive","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"16","3":"No","4":"0.9042029","5":"0.2722133","6":"0.71758417","7":"0.8254724","8":"WorkLifeBalance","9":"3","10":"0.04587183","11":"WorkLifeBalance = Better","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9998249","5":"0.2212497","6":"0.68334978","7":"0.9485122","8":"OverTime","9":"1","10":"0.17002578","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9998249","5":"0.2212497","6":"0.68334978","7":"0.9485122","8":"JobLevel","9":"5","10":"-0.11947565","11":"JobLevel = 5","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9998249","5":"0.2212497","6":"0.68334978","7":"0.9485122","8":"NumCompaniesWorked","9":"9","10":"-0.09144650","11":"4 < NumCompaniesWorked","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9998249","5":"0.2212497","6":"0.68334978","7":"0.9485122","8":"TotalWorkingYears","9":"30","10":"0.07547009","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9998249","5":"0.2212497","6":"0.68334978","7":"0.9485122","8":"StockOptionLevel","9":"2","10":"0.06556333","11":"StockOptionLevel = 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9998249","5":"0.2212497","6":"0.68334978","7":"0.9485122","8":"JobSatisfaction","9":"4","10":"0.05867130","11":"JobSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9998249","5":"0.2212497","6":"0.68334978","7":"0.9485122","8":"Age","9":"59","10":"0.05870737","11":"43 < Age","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"17","3":"No","4":"0.9998249","5":"0.2212497","6":"0.68334978","7":"0.9485122","8":"BusinessTravel","9":"1","10":"0.04764668","11":"BusinessTravel = Non-Travel","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.9645281","5":"0.2728806","6":"0.81427844","7":"0.6832498","8":"OverTime","9":"1","10":"0.16973009","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.9645281","5":"0.2728806","6":"0.81427844","7":"0.6832498","8":"BusinessTravel","9":"3","10":"-0.10117473","11":"BusinessTravel = Travel_Frequently","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.9645281","5":"0.2728806","6":"0.81427844","7":"0.6832498","8":"EnvironmentSatisfaction","9":"1","10":"-0.09916480","11":"EnvironmentSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.9645281","5":"0.2728806","6":"0.81427844","7":"0.6832498","8":"TotalWorkingYears","9":"23","10":"0.09749836","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.9645281","5":"0.2728806","6":"0.81427844","7":"0.6832498","8":"YearsSinceLastPromotion","9":"12","10":"-0.08781100","11":"2 < YearsSinceLastPromotion","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.9645281","5":"0.2728806","6":"0.81427844","7":"0.6832498","8":"StockOptionLevel","9":"1","10":"-0.08581175","11":"StockOptionLevel = 0","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.9645281","5":"0.2728806","6":"0.81427844","7":"0.6832498","8":"JobSatisfaction","9":"1","10":"-0.07842140","11":"JobSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"18","3":"No","4":"0.9645281","5":"0.2728806","6":"0.81427844","7":"0.6832498","8":"Age","9":"51","10":"0.05412664","11":"43 < Age","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9962354","5":"0.2504477","6":"0.86070549","7":"0.8310666","8":"OverTime","9":"2","10":"-0.16911268","11":"OverTime = Yes","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9962354","5":"0.2504477","6":"0.86070549","7":"0.8310666","8":"YearsSinceLastPromotion","9":"4","10":"-0.10603752","11":"2 < YearsSinceLastPromotion","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9962354","5":"0.2504477","6":"0.86070549","7":"0.8310666","8":"TotalWorkingYears","9":"25","10":"0.09745188","11":"15 < TotalWorkingYears","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9962354","5":"0.2504477","6":"0.86070549","7":"0.8310666","8":"BusinessTravel","9":"3","10":"-0.08979259","11":"BusinessTravel = Travel_Frequently","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9962354","5":"0.2504477","6":"0.86070549","7":"0.8310666","8":"NumCompaniesWorked","9":"1","10":"0.06505407","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9962354","5":"0.2504477","6":"0.86070549","7":"0.8310666","8":"JobSatisfaction","9":"4","10":"0.06423231","11":"JobSatisfaction = Very High","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9962354","5":"0.2504477","6":"0.86070549","7":"0.8310666","8":"YearsInCurrentRole","9":"12","10":"0.05346378","11":"7 < YearsInCurrentRole","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"19","3":"No","4":"0.9962354","5":"0.2504477","6":"0.86070549","7":"0.8310666","8":"StockOptionLevel","9":"3","10":"0.05510191","11":"StockOptionLevel = 2","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.9518589","5":"0.2277023","6":"0.71395768","7":"0.6675152","8":"OverTime","9":"1","10":"0.17836153","11":"OverTime = No","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.9518589","5":"0.2277023","6":"0.71395768","7":"0.6675152","8":"EnvironmentSatisfaction","9":"1","10":"-0.10355482","11":"EnvironmentSatisfaction = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.9518589","5":"0.2277023","6":"0.71395768","7":"0.6675152","8":"JobInvolvement","9":"1","10":"-0.08716286","11":"JobInvolvement = Low","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.9518589","5":"0.2277023","6":"0.71395768","7":"0.6675152","8":"BusinessTravel","9":"3","10":"-0.07375144","11":"BusinessTravel = Travel_Frequently","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.9518589","5":"0.2277023","6":"0.71395768","7":"0.6675152","8":"NumCompaniesWorked","9":"1","10":"0.07175110","11":"NumCompaniesWorked <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.9518589","5":"0.2277023","6":"0.71395768","7":"0.6675152","8":"YearsSinceLastPromotion","9":"0","10":"0.07075679","11":"YearsSinceLastPromotion <= 1","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.9518589","5":"0.2277023","6":"0.71395768","7":"0.6675152","8":"Age","9":"30","10":"-0.05455982","11":"Age <= 30","12":"<named list [31]>","13":"<named list [2]>"},{"1":"classification","2":"20","3":"No","4":"0.9518589","5":"0.2277023","6":"0.71395768","7":"0.6675152","8":"DistanceFromHome","9":"23","10":"-0.04828297","11":"14 < DistanceFromHome","12":"<named list [31]>","13":"<named list [2]>"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a><span class="fu">plot_features</span>(explanation, <span class="at">ncol =</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure"><p><a href="Explaining_BB_Models_files/figure-html/unnamed-chunk-1-2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="Explaining_BB_Models_files/figure-html/unnamed-chunk-1-2.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a><span class="fu">plot_explanations</span>(explanation)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure"><p><a href="Explaining_BB_Models_files/figure-html/unnamed-chunk-1-3.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="Explaining_BB_Models_files/figure-html/unnamed-chunk-1-3.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+
+
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'alternate';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","selector":".lightbox","loop":true,"openEffect":"zoom"});</script>
+
+
+</body></html>

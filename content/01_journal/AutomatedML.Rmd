@@ -1,0 +1,116 @@
+---
+title: "Automated Machine Learning with H2O II"
+author: "Mohamed Eltabei"
+date: "2023-06-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Loading the training & test dataset
+
+```{r}
+library(h2o)
+library(tidyverse)
+library(readxl)
+library(recipes)
+library(parsnip)
+library(yardstick)
+library(tidymodels)
+```
+
+
+
+```{r}
+product_backorders_tbl <- read_xlsx("./../../assets/DataSets/product_backorders.xlsx")
+set.seed(seed = 1113)
+split_obj <- rsample::initial_split(product_backorders_tbl, prop = 0.85)
+train_readable_tbl <- training(split_obj)
+test_readable_tbl <- testing(split_obj)
+```
+
+
+
+```{r}
+recipe_obj <- recipe(went_on_backorder ~., data = train_readable_tbl) %>% 
+  step_zv(all_predictors()) %>% 
+  step_mutate_at(in_transit_qty, local_bo_qty, fn = as.factor) %>% 
+  prep()
+
+
+train_tbl <- bake(recipe_obj, new_data = train_readable_tbl)
+test_tbl  <- bake(recipe_obj, new_data = test_readable_tbl)
+```
+
+
+
+
+# Intializing H2O
+```{r}
+h2o.init()
+```
+
+# Spliting data into a training and a validation data frame
+
+```{r}
+split_h2o <- h2o.splitFrame(as.h2o(train_tbl), ratios = c(0.85), seed = 1234)
+train_h2o <- split_h2o[[1]]
+valid_h2o <- split_h2o[[2]]
+test_h2o  <- as.h2o(test_tbl)
+```
+
+# Specifing the response and predictor variables
+```{r}
+y <- "went_on_backorder"
+x <- setdiff(names(train_h2o), y)
+```
+
+
+# Running AutoML specifying the stopping criterion
+```{r}
+automl_models_h2o <- h2o.automl(
+  x = x,
+  y = y,
+  training_frame    = train_h2o,
+  validation_frame  = valid_h2o,
+  leaderboard_frame = test_h2o,
+  max_runtime_secs  = 30,
+  nfolds            = 5 
+)
+```
+# Viewing the leaderboard
+
+```{r}
+typeof(automl_models_h2o)
+
+
+slotNames(automl_models_h2o)
+
+
+automl_models_h2o@leaderboard
+
+automl_models_h2o@leader
+```
+
+# Predicting using Leader Model
+
+```{r}
+h2o.init()
+
+stacked_ensemble_h2o <- h2o.loadModel("./../../assets/Models/GBM_1_AutoML_6_20230602_132940")
+```
+
+
+```{r}
+h2o.init()
+
+predictions <- h2o.predict(stacked_ensemble_h2o, newdata = as.h2o(test_tbl))
+
+typeof(predictions)
+
+predictions_tbl <- predictions %>% as_tibble()
+
+predictions_tbl
+```
