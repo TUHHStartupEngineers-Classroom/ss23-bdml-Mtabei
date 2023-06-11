@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Mohamed Eltabei">
 <meta name="dcterms.date" content="2023-06-04">
-<title>MyLabJournal - AutomatedML_I</title>
+<title>MyLabJournal - Automated Machine Learning with H2O I</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -155,7 +155,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   </li>  
         <li>
     <a class="dropdown-item" href="../../content/01_journal/Regression.html">
- <span class="dropdown-text">02 Regression</span></a>
+ <span class="dropdown-text">02 Supervised ML - Regression</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../../content/01_journal/AutomatedML_I.html">
@@ -167,7 +167,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   </li>  
         <li>
     <a class="dropdown-item" href="../../content/01_journal/PerformanceMeasure.html">
- <span class="dropdown-text">05 Performance Measure</span></a>
+ <span class="dropdown-text">05 Performance Measures</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../content/01_journal/Explaining_BB_Models.html">
+ <span class="dropdown-text">06 Explaining Black-Box Models with LIME</span></a>
   </li>  
     </ul>
 </li>
@@ -209,7 +213,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
-<h1 class="title">AutomatedML_I</h1>
+<h1 class="title">Automated Machine Learning with H2O I</h1>
 </div>
 
 
@@ -1160,11 +1164,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ol start="2" type="1">
 <li>What can you deduce about the interaction between Percent Salary Hike and Attrition?</li>
 </ol>
-<p>Answer:</p>
+<p>Answer: It’s difficult to deduce anything based on the visualization</p>
 <ol start="3" type="1">
 <li>What can you deduce about the interaction between Stock Option Level and Attrition?</li>
 </ol>
-<p>Answer</p>
+<p>Answer: Those that are leaving the company have a higher stock option level</p>
 </section><section id="survey-results-satisfaction-level-worklifebalance" class="level2" data-number="2.2"><h2 data-number="2.2" class="anchored" data-anchor-id="survey-results-satisfaction-level-worklifebalance">
 <span class="header-section-number">2.2</span> Survey Results: Satisfaction level, WorkLifeBalance</h2>
 <div class="cell" data-hash="AutomatedML_I_cache/html/unnamed-chunk-3_1abaa05351084336e5100488eb5f0743">
@@ -1186,11 +1190,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ol start="4" type="1">
 <li>What can you deduce about the interaction between Environment Satisfaction and Attrition?</li>
 </ol>
-<p>Answer:</p>
+<p>Answer: A higher proportion of those leaving have a high environment satisfaction level</p>
 <ol start="5" type="1">
 <li>What can you deduce about the interaction between Work Life Balance and Attrition?</li>
 </ol>
-<p>Answer:</p>
+<p>Answer: Those that are staying have a lower density of 2’s and 3’s</p>
 </section><section id="performance-data-job-involvment-performance-rating" class="level2" data-number="2.3"><h2 data-number="2.3" class="anchored" data-anchor-id="performance-data-job-involvment-performance-rating">
 <span class="header-section-number">2.3</span> Performance Data: Job Involvment, Performance Rating</h2>
 <div class="cell" data-hash="AutomatedML_I_cache/html/unnamed-chunk-4_0f675e2f4618168f9d1d9897ad1705d2">
@@ -1207,7 +1211,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ol start="6" type="1">
 <li>What Can you deduce about the interaction between Job Involvement and Attrition?</li>
 </ol>
-<p>Answer:</p>
+<p>Answer: Those that are staying have a lower density of 2’s and 3’s</p>
 </section><section id="work-life-features" class="level2" data-number="2.4"><h2 data-number="2.4" class="anchored" data-anchor-id="work-life-features">
 <span class="header-section-number">2.4</span> Work-Life Features</h2>
 <div class="cell" data-hash="AutomatedML_I_cache/html/unnamed-chunk-5_79534395356ea69443cc1398c726c851">
@@ -1224,7 +1228,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ol start="7" type="1">
 <li>What can you deduce about the interaction between Over Time and Attrition?</li>
 </ol>
-<p>Answer:</p>
+<p>Answer: The proportion of those leaving that are working Over Time are high compared to those that are not leaving</p>
 </section><section id="training-and-education" class="level2" data-number="2.5"><h2 data-number="2.5" class="anchored" data-anchor-id="training-and-education">
 <span class="header-section-number">2.5</span> Training and Education</h2>
 <div class="cell" data-hash="AutomatedML_I_cache/html/unnamed-chunk-6_f937d2b2062a0c0cf137cc19763b36c0">
@@ -1241,7 +1245,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ol start="8" type="1">
 <li>What can you deduce about the interaction between Training Times Last Year and Attrition?</li>
 </ol>
-<p>Answer:</p>
+<p>Answer: People that leave tend to have more annual training</p>
 </section><section id="time-based-features-years-at-company-years-in-current-role" class="level2" data-number="2.6"><h2 data-number="2.6" class="anchored" data-anchor-id="time-based-features-years-at-company-years-in-current-role">
 <span class="header-section-number">2.6</span> Time-Based Features: Years at company, years in current role</h2>
 <div class="cell" data-hash="AutomatedML_I_cache/html/unnamed-chunk-7_c42c2064a62500a2be2a3b3828a506dd">
@@ -1258,11 +1262,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ol start="9" type="1">
 <li>What can you deduce about the interaction between Years At Company and Attrition?</li>
 </ol>
-<p>Answer:</p>
+<p>Answer: People that leave tend to have more working years at the company</p>
 <ol start="10" type="1">
 <li>What can you deduce about the interaction between Years Since Last Promotion and Attrition?</li>
 </ol>
-<p>Answer:</p>
+<p>Answer: It’s difficult to deduce anything based on the visualization</p>
 
 
 </section></section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
@@ -1514,7 +1518,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<script>var lightboxQuarto = GLightbox({"selector":".lightbox","descPosition":"bottom","closeEffect":"zoom","openEffect":"zoom","loop":true});</script>
+<script>var lightboxQuarto = GLightbox({"selector":".lightbox","closeEffect":"zoom","loop":true,"openEffect":"zoom","descPosition":"bottom"});</script>
 
 
 </body></html>
