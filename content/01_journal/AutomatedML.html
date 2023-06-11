@@ -155,8 +155,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
  <span class="dropdown-text">02 Regression</span></a>
   </li>  
         <li>
+    <a class="dropdown-item" href="../../content/01_journal/AutomatedML_I.html">
+ <span class="dropdown-text">03 Automated Machine Learning with H2O I</span></a>
+  </li>  
+        <li>
     <a class="dropdown-item" href="../../content/01_journal/AutomatedML.html">
- <span class="dropdown-text">03 Automated Machine Learning with H2O</span></a>
+ <span class="dropdown-text">04 Automated Machine Learning with H2O II</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../content/01_journal/PerformanceMeasure.html">
+ <span class="dropdown-text">05 Performance Measure</span></a>
   </li>  
     </ul>
 </li>
@@ -182,10 +190,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
         <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Contents</h2>
    
   <ul class="collapse">
-<li><a href="#loading-libraries" id="toc-loading-libraries" class="nav-link active" data-scroll-target="#loading-libraries"><span class="toc-section-number">1</span>  Loading libraries</a></li>
+<li><a href="#loading-the-training-test-dataset" id="toc-loading-the-training-test-dataset" class="nav-link active" data-scroll-target="#loading-the-training-test-dataset"><span class="toc-section-number">1</span>  Loading the training &amp; test dataset</a></li>
   <li><a href="#intializing-h2o" id="toc-intializing-h2o" class="nav-link" data-scroll-target="#intializing-h2o"><span class="toc-section-number">2</span>  Intializing H2O</a></li>
   <li><a href="#spliting-data-into-a-training-and-a-validation-data-frame" id="toc-spliting-data-into-a-training-and-a-validation-data-frame" class="nav-link" data-scroll-target="#spliting-data-into-a-training-and-a-validation-data-frame"><span class="toc-section-number">3</span>  Spliting data into a training and a validation data frame</a></li>
-  <li><a href="#setting-target-and-predictors" id="toc-setting-target-and-predictors" class="nav-link" data-scroll-target="#setting-target-and-predictors"><span class="toc-section-number">4</span>  Setting target and predictors</a></li>
+  <li><a href="#specifing-the-response-and-predictor-variables" id="toc-specifing-the-response-and-predictor-variables" class="nav-link" data-scroll-target="#specifing-the-response-and-predictor-variables"><span class="toc-section-number">4</span>  Specifing the response and predictor variables</a></li>
+  <li><a href="#running-automl-specifying-the-stopping-criterion" id="toc-running-automl-specifying-the-stopping-criterion" class="nav-link" data-scroll-target="#running-automl-specifying-the-stopping-criterion"><span class="toc-section-number">5</span>  Running AutoML specifying the stopping criterion</a></li>
+  <li><a href="#viewing-the-leaderboard" id="toc-viewing-the-leaderboard" class="nav-link" data-scroll-target="#viewing-the-leaderboard"><span class="toc-section-number">6</span>  Viewing the leaderboard</a></li>
+  <li><a href="#predicting-using-leader-model" id="toc-predicting-using-leader-model" class="nav-link" data-scroll-target="#predicting-using-leader-model"><span class="toc-section-number">7</span>  Predicting using Leader Model</a></li>
   </ul></nav>
     </div>
 <!-- main -->
@@ -215,8 +226,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   </div>
   
 
-</header><section id="loading-libraries" class="level1" data-number="1"><h1 data-number="1">
-<span class="header-section-number">1</span> Loading libraries</h1>
+</header><section id="loading-the-training-test-dataset" class="level1" data-number="1"><h1 data-number="1">
+<span class="header-section-number">1</span> Loading the training &amp; test dataset</h1>
 <div class="cell" data-hash="AutomatedML_cache/html/unnamed-chunk-1_b490247cf778f89b2ba2fee9e929aaab">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(h2o)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(tidyverse)</span>
@@ -319,12 +330,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   |======================================================================| 100%</code></pre>
 </div>
 </div>
-</section><section id="setting-target-and-predictors" class="level1" data-number="4"><h1 data-number="4">
-<span class="header-section-number">4</span> Setting target and predictors</h1>
+</section><section id="specifing-the-response-and-predictor-variables" class="level1" data-number="4"><h1 data-number="4">
+<span class="header-section-number">4</span> Specifing the response and predictor variables</h1>
 <div class="cell" data-hash="AutomatedML_cache/html/unnamed-chunk-6_5301429a5a951d45b6f0c2b7d4d78c0e">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>y <span class="ot">&lt;-</span> <span class="st">"went_on_backorder"</span></span>
 <span id="cb16-2"><a href="#cb16-2"></a>x <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="fu">names</span>(train_h2o), y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section><section id="running-automl-specifying-the-stopping-criterion" class="level1" data-number="5"><h1 data-number="5">
+<span class="header-section-number">5</span> Running AutoML specifying the stopping criterion</h1>
 <div class="cell" data-hash="AutomatedML_cache/html/unnamed-chunk-7_a6753c2052b0907e91f7ad645a1a7b9d">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>automl_models_h2o <span class="ot">&lt;-</span> <span class="fu">h2o.automl</span>(</span>
 <span id="cb17-2"><a href="#cb17-2"></a>  <span class="at">x =</span> x,</span>
@@ -373,6 +386,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   |======================================================================| 100%</code></pre>
 </div>
 </div>
+</section><section id="viewing-the-leaderboard" class="level1" data-number="6"><h1 data-number="6">
+<span class="header-section-number">6</span> Viewing the leaderboard</h1>
 <div class="cell" data-hash="AutomatedML_cache/html/unnamed-chunk-8_08099dede3b0f4d9efc3a065cb52b848">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="fu">typeof</span>(automl_models_h2o)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -572,6 +587,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 #&gt; specificity          0.954450    0.937164</code></pre>
 </div>
 </div>
+</section><section id="predicting-using-leader-model" class="level1" data-number="7"><h1 data-number="7">
+<span class="header-section-number">7</span> Predicting using Leader Model</h1>
 <div class="cell" data-hash="AutomatedML_cache/html/unnamed-chunk-9_344be9b7ae1c0211fdf33e523d08a481">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="fu">h2o.init</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
