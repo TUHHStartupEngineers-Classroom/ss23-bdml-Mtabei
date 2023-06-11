@@ -16,14 +16,16 @@ website:
         menu: 
           - text: "01 Machine Learning Fundamentals"
             file: content/01_journal/Chapter_1_Challenge.Rmd
-          - text: "02 Regression"
+          - text: "02 Supervised ML - Regression"
             file: content/01_journal/Regression.Rmd
           - text: "03 Automated Machine Learning with H2O I"
             file: content/01_journal/AutomatedML_I.Rmd
           - text: "04 Automated Machine Learning with H2O II"
             file: content/01_journal/AutomatedML.Rmd
-          - text: "05 Performance Measure"
+          - text: "05 Performance Measures"
             file: content/01_journal/PerformanceMeasure.Rmd
+          - text: "06 Explaining Black-Box Models with LIME"
+            file: content/01_journal/Explaining_BB_Models.Rmd
       - text: "Class notes"
         file: content/02_notes/05_class_notes.qmd
       - text: "Links"

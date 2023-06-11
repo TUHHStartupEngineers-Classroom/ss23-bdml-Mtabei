@@ -1,5 +1,5 @@
 ---
-title: "AutomatedML_I"
+title: "Automated Machine Learning with H2O I"
 author: "Mohamed Eltabei"
 date: "2023-06-04"
 output: html_document
@@ -143,11 +143,11 @@ Answer: That those are staying have a lower Monthly Income.
 
 2. What can you deduce about the interaction between Percent Salary Hike and Attrition?
 
-Answer:
+Answer: It's difficult to deduce anything based on the visualization
 
 3. What can you deduce about the interaction between Stock Option Level and Attrition?
 
-Answer
+Answer: Those that are leaving the company have a higher stock option level
 
 ## Survey Results: Satisfaction level, WorkLifeBalance 
 
@@ -162,11 +162,11 @@ employee_attrition_tbl %>%
 
 4. What can you deduce about the interaction between Environment Satisfaction and Attrition?
 
-Answer: 
+Answer: A higher proportion of those leaving have a high environment satisfaction level
 
 5. What can you deduce about the interaction between Work Life Balance and Attrition?
 
-Answer: 
+Answer: Those that are staying have a lower density of 2's and 3's
 
 ## Performance Data: Job Involvment, Performance Rating
 
@@ -178,7 +178,7 @@ employee_attrition_tbl %>%
 
 6. What Can you deduce about the interaction between Job Involvement and Attrition?
 
-Answer: 
+Answer: Those that are staying have a lower density of 2's and 3's
 
 ## Work-Life Features
 
@@ -191,7 +191,7 @@ employee_attrition_tbl %>%
 
 7. What can you deduce about the interaction between Over Time and Attrition?
 
-Answer: 
+Answer: The proportion of those leaving that are working Over Time are high compared to those that are not leaving
 
 ## Training and Education
 
@@ -204,7 +204,7 @@ employee_attrition_tbl %>%
 ```
 8. What can you deduce about the interaction between Training Times Last Year and Attrition?
 
-Answer:
+Answer: People that leave tend to have more annual training
 
 ## Time-Based Features: Years at company, years in current role
 
@@ -218,8 +218,8 @@ employee_attrition_tbl %>%
 
 9. What can you deduce about the interaction between Years At Company and Attrition?
 
-Answer: 
+Answer: People that leave tend to have more working years at the company
 
 10. What can you deduce about the interaction between Years Since Last Promotion and Attrition?
 
-Answer:
+Answer: It's difficult to deduce anything based on the visualization
